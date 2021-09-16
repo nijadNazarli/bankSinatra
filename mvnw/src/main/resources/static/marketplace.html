@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en" class ="no-js">
+<head>
+    <meta charset="UTF-8">
+    <title>Marketplace</title>
+    <link rel="stylesheet" href="partials/header.css">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="partials/validateClient.js"></script>
+    <script src="marketplace.js" defer></script>
+    <script>
+        $(function(){
+            $("#header").load("partials/header.html");
+        });
+    </script>
+</head>
+
+<body>
+<div id="header"></div>
+<div id="cryptoOverview" class="split left">
+    <h1 id="cryptoSymbol"></h1>
+    <table id="cryptoTable"></table>
+</div>
+
+<div id="cryptoBuy" class="split right">
+</div>
+
+</body>
+</html>

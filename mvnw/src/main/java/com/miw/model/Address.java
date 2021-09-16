@@ -1,27 +1,33 @@
-package com.miw.model;
+package miw.model;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Pattern;
+import java.util.Objects;
 
 public class Address {
 
     @NotEmpty
-    @Pattern(regexp="^([a-zA-Z\\u0080-\\u024F]+(?:. |-| |'))*[a-zA-Z\\u0080-\\u024F]*$")
+    @Pattern(regexp="^([a-zA-Z\\u0080-\\u024F]+(?:. |-| |'))*[a-zA-Z\\u0080-\\u024F]*$",
+            message="Must start with a letter and can only contain letters and spaces afterwards.")
     private String city;
 
     @NotEmpty
-    @Pattern(regexp="^[1-9][0-9]{3} ?(?!sa|sd|ss|SA|SD|SS)[A-Za-z]{2}$")
+    @Pattern(regexp="^[1-9][0-9]{3} ?(?!sa|sd|ss|SA|SD|SS)[A-Za-z]{2}$",
+            message="Only Dutch zip codes are accepted at the moment with format: NNNN AA. " +
+                    "For foreign clients, please stay tuned for future foreign service expansions.")
     private String zipCode;
 
     @NotEmpty
-    @Pattern(regexp="^([a-zA-Z\\u0080-\\u024F]+(?:. |-| |'))*[a-zA-Z0-9\\u0080-\\u024F]*$")
+    @Pattern(regexp="^([a-zA-Z\\u0080-\\u024F]+(?:. |-| |'))*[a-zA-Z0-9\\u0080-\\u024F]*$",
+            message="Must start with a letter and can only contain letters and spaces afterwards.")
     private String street;
 
     @Min(1)
     private int houseNumber;
 
-    @Pattern(regexp="[a-zA-Z]*[0-9]*-?/?[a-zA-Z]*[0-9]*")
+    @Pattern(regexp="[a-zA-Z]*[0-9]*-?/?[a-zA-Z]*[0-9]*",
+            message="Can only contain letters and numbers with an optional dash or slash inbetween.")
     private String houseNumberExtension;
 
 
@@ -71,6 +77,20 @@ public class Address {
 
     public void setHouseNumberExtension(String houseNumberExtension) {
         this.houseNumberExtension = houseNumberExtension;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        com.miw.model.Address address = (com.miw.model.Address) o;
+        return houseNumber == address.houseNumber && city.equals(address.city) && zipCode.equals(address.zipCode)
+                && street.equals(address.street) && Objects.equals(houseNumberExtension, address.houseNumberExtension);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(city, zipCode, street, houseNumber, houseNumberExtension);
     }
 }
 

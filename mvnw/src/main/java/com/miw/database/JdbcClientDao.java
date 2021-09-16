@@ -1,4 +1,5 @@
-package com.miw.database;
+package miw.database;
+import com.miw.database.ClientDao;
 import com.miw.model.Address;
 import com.miw.model.Client;
 import org.slf4j.Logger;
@@ -12,11 +13,12 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import java.sql.*;
+import java.time.LocalDate;
 
 @Repository
 public class JdbcClientDao implements ClientDao {
 
-  private final Logger logger = LoggerFactory.getLogger(JdbcClientDao.class);
+  private final Logger logger = LoggerFactory.getLogger(com.miw.database.JdbcClientDao.class);
 
   private JdbcTemplate jdbcTemplate;
 
@@ -29,7 +31,7 @@ public class JdbcClientDao implements ClientDao {
 
   private PreparedStatement insertClientStatement(Client client, Connection connection) throws SQLException {
     PreparedStatement ps = connection.prepareStatement(
-            "INSERT INTO User (email, password, salt, role, isBlocked, firstName, prefix, lastName, street, " +
+            "INSERT INTO User (email, password, salt, userRole, isBlocked, firstName, prefix, lastName, street, " +
                     "houseNumber, houseNumberExtension, zipCode, city, bsn, dateOfBirth) " +
                     "VALUES (?, ?, ?, 'client', 0, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
     ps.setString(1, client.getEmail());
@@ -44,7 +46,7 @@ public class JdbcClientDao implements ClientDao {
     ps.setString(10, client.getAddress().getZipCode());
     ps.setString(11, client.getAddress().getCity());
     ps.setInt(12, client.getBsn());
-    ps.setDate(13, new Date(client.getDateOfBirth().getTime()));
+    ps.setDate(13, Date.valueOf(client.getDateOfBirth()));
     return ps;
   }
 
@@ -60,10 +62,21 @@ public class JdbcClientDao implements ClientDao {
 
   @Override
   public Client findByEmail(String email) {
-    String sql = "SELECT * FROM User WHERE email = ?";
+    String sql = "SELECT * FROM `User` WHERE email = ?";
     try {
       return jdbcTemplate.queryForObject(sql, new ClientRowMapper(), email);
     } catch (EmptyResultDataAccessException e) {
+      logger.info("User does not exist in the database");
+      return null;
+    }
+  }
+
+  @Override
+  public Client findByBsn(int bsn){
+    String sql = "SELECT * FROM `User` WHERE bsn = ?";
+    try{
+      return jdbcTemplate.queryForObject(sql, new ClientRowMapper(), bsn);
+    }catch (EmptyResultDataAccessException e) {
       logger.info("User does not exist in the database");
       return null;
     }
@@ -87,9 +100,11 @@ public class JdbcClientDao implements ClientDao {
       String city = resultSet.getString("city");
       Address address = new Address(city, zipCode, street, houseNumber, houseNrExtension);
       int bsn = resultSet.getInt("bsn");
-      Date dateOfBirth = resultSet.getDate("dateOfBirth");
+      LocalDate dateOfBirth = resultSet.getObject("dateOfBirth", LocalDate.class);
+      boolean isBlocked = resultSet.getBoolean("isBlocked");
       Client client = new Client(email, password, salt, firstName, prefix, lastName, dateOfBirth, bsn, address);
       client.setUserId(id);
+      client.setBlocked(isBlocked);
       return client;
     }
   }

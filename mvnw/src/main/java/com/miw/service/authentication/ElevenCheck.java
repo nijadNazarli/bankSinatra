@@ -1,4 +1,6 @@
-package com.miw.service.authentication;
+package miw.service.authentication;
+
+import com.miw.service.authentication.ElevenCheckValidation;
 
 import javax.validation.Constraint;
 import javax.validation.Payload;

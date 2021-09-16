@@ -1,69 +1,74 @@
-package com.miw.service.authentication;
-/**
- * @Author: Nijad Nazarli
- * @Description: This service class authenticates the user
- *               based on the details entered while logging in
- */
-import com.miw.database.JdbcTokenDao;
-import com.miw.database.JdbcClientDao;
+package miw.service.authentication;
+
+import com.miw.database.RootRepository;
+import com.miw.model.Administrator;
 import com.miw.model.Client;
 import com.miw.model.Credentials;
-import com.miw.service.RegistrationService;
+import com.miw.model.User;
+import com.miw.service.authentication.HashService;
+import com.miw.service.authentication.TokenService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+/**
+ * @author  Nijad Nazarli
+ * @apiNote This service class authenticates the user
+ *               based on the details entered while logging in
+ */
 @Service
 public class AuthenticationService {
 
     private HashService hashService;
-    private JdbcClientDao clientDao;
-    private TokenService tokenService;
-    private JdbcTokenDao jdbcTokenDao;
-
+    private RootRepository rootRepository;
+    private final String INVALID_CREDENTIALS = "Invalid credentials";
+    private final String BLOCKED_USER = "User is blocked. Please contact administrator";
+    private final int JWT_VALIDITY_TIME = 7400000; //2 uur geldig
     private final Logger logger = LoggerFactory.getLogger(RegistrationService.class);
 
     @Autowired
-    public AuthenticationService(HashService hs, JdbcClientDao clientDao, TokenService tokenService, JdbcTokenDao jdbcTokenDao) {
+    public AuthenticationService(HashService hs, RootRepository rootRepository) {
         super();
         this.hashService = hs;
-        this.clientDao = clientDao;
-        this.tokenService = tokenService;
-        this.jdbcTokenDao = jdbcTokenDao;
+        this.rootRepository = rootRepository;
         logger.info("New AuthenticationService created");
     }
 
     public String authenticate(Credentials credentials) {
-        Client clientDatabase = clientDao.findByEmail(credentials.getEmail());
-        Client clientLogIn = new Client(credentials.getEmail(), credentials.getPassword());
-        String hash;
+        User userDatabase = rootRepository.getUserByEmail(credentials.getEmail());
+        User userLoggingIn;
 
-        if (clientDatabase != null) {
-            clientLogIn.setSalt(clientDatabase.getSalt());
-            hash = hashService.hashForAuthenticate(clientLogIn).getPassword();
-
-            if (clientDatabase.getPassword().equals(hash)) {
-                String token = tokenService.jwtBuilder(credentials.getEmail().toString(),7400000); //2 uur geldig
-                return token;
+        if (userDatabase != null) {
+            if (userDatabase instanceof Client) {
+                userLoggingIn = new Client(credentials.getEmail(), credentials.getPassword());
+            } else {
+                userLoggingIn = new Administrator(credentials.getEmail(), credentials.getPassword());
             }
+            userLoggingIn.setSalt(userDatabase.getSalt());
+            String hash = hashService.hashForAuthenticate(userLoggingIn).getPassword();
+
+            if (userDatabase.getPassword().equals(hash)) {
+                if (userDatabase.isBlocked()) {
+                    return BLOCKED_USER;
+                }
+                return TokenService.jwtBuilder(userDatabase.getUserId(),
+                        userLoggingIn instanceof Client ? "client" : "admin", JWT_VALIDITY_TIME);
+            }
+            return INVALID_CREDENTIALS;
         }
-        return "";
+        return INVALID_CREDENTIALS;
+    }
+
+    public String getINVALID_CREDENTIALS() {
+        return INVALID_CREDENTIALS;
+    }
+
+    public String getBLOCKED_USER() {
+        return BLOCKED_USER;
     }
 
     public HashService getHashService() {
         return hashService;
-    }
-
-    public JdbcClientDao getClientDao() {
-        return clientDao;
-    }
-
-    public TokenService getTokenService() {
-        return tokenService;
-    }
-
-    public JdbcTokenDao getJdbcTokenDao() {
-        return jdbcTokenDao;
     }
 }

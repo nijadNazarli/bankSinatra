@@ -1,25 +1,30 @@
-package com.miw.model;
+package miw.model;
+
+import org.iban4j.CountryCode;
+import org.iban4j.Iban;
+
+import java.util.Objects;
 
 public class Account {
 
     private int accountId;
     private String iban;
     private double balance;
+    private final String BANKCODE = "BSIN";
 
     public Account() {
-        this.iban = generateIban();
-        this.balance = 10000.00;
+        this(10000);
     }
 
     public Account(double balance) {
-        this.iban = generateIban();
+        this.iban = new Iban.Builder().countryCode(CountryCode.NL).bankCode(BANKCODE).buildRandom().toString();
         this.balance = balance;
     }
 
-
-    private String generateIban() {
-        //TODO: create unique iban number
-        return "generatedIban";
+    public Account(int accountId, String iban, double balance) {
+        this.accountId = accountId;
+        this.iban = iban;
+        this.balance = balance;
     }
 
     public int getAccountId() {
@@ -53,5 +58,18 @@ public class Account {
                 ", iban='" + iban + '\'' +
                 ", balance=" + balance +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        com.miw.model.Account account = (com.miw.model.Account) o;
+        return accountId == account.accountId;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(accountId);
     }
 }

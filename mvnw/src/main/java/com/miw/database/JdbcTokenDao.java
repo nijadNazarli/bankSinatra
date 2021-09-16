@@ -1,6 +1,5 @@
-package com.miw.database;
+package miw.database;
 
-import com.miw.model.Client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +15,7 @@ import java.util.TreeMap;
 @Repository
 public class JdbcTokenDao {
 
-    private final Logger logger = LoggerFactory.getLogger(JdbcTokenDao.class);
+    private final Logger logger = LoggerFactory.getLogger(com.miw.database.JdbcTokenDao.class);
 
     private JdbcTemplate jdbcTemplate;
 

@@ -1,13 +1,14 @@
-package com.miw;
-
+package miw;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-// test
+import org.springframework.scheduling.annotation.EnableScheduling;
+
+
+@EnableScheduling
 @SpringBootApplication
 public class BankSinatraApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(BankSinatraApplication.class, args);
+        SpringApplication.run(com.miw.BankSinatraApplication.class, args);
     }
-
 }

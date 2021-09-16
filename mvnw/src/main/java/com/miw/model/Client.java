@@ -1,10 +1,15 @@
-package com.miw.model;
+package miw.model;
 
+import com.miw.model.Account;
+import com.miw.model.Address;
+import com.miw.model.Crypto;
+import com.miw.model.User;
 import com.miw.service.authentication.ElevenCheck;
+
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Past;
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -12,7 +17,7 @@ public class Client extends User{
 
     @NotNull
     @Past
-    private Date dateOfBirth;
+    private LocalDate dateOfBirth;
 
     @ElevenCheck
     private int bsn;
@@ -20,9 +25,9 @@ public class Client extends User{
     @Valid
     private Address address;
     private Map<Crypto, Double> portfolio;
-    private Account account = new Account(); // TODO: bij aanroep vanuit registerController, waarom is account null als dit in de construct zit?
+    private Account account;
 
-    public Client(String email, String password, String salt, String firstName, String prefix, String lastName, Date dateOfBirth, int bsn, Address address) {
+    public Client(String email, String password, String salt, String firstName, String prefix, String lastName, LocalDate dateOfBirth, int bsn, Address address) {
         super(email, password, salt, firstName, prefix, lastName);
         this.dateOfBirth = dateOfBirth;
         this.bsn = bsn;
@@ -35,13 +40,14 @@ public class Client extends User{
     }
 
     public Client() {
+        this.account = new Account();
     }
 
-    public Date getDateOfBirth() {
+    public LocalDate getDateOfBirth() {
         return dateOfBirth;
     }
 
-    public void setDateOfBirth(Date dateOfBirth) {
+    public void setDateOfBirth(LocalDate dateOfBirth) {
         this.dateOfBirth = dateOfBirth;
     }
 
@@ -69,6 +75,7 @@ public class Client extends User{
     public String toString() {
         return "Client{" +
                 "account=" + account +
+                ", userId=" + userId +
                 ", email='" + email + '\'' +
                 ", password='" + password + '\'' +
                 '}';

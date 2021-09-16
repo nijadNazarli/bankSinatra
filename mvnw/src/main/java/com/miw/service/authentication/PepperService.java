@@ -1,4 +1,4 @@
-package com.miw.service.authentication;
+package miw.service.authentication;
 
 import org.springframework.stereotype.Service;
 

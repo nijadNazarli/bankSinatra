@@ -1,62 +1,74 @@
-package com.miw.controller;
+package miw.controller;
 /**
  * @Author: Nijad Nazarli
  * @Description: This controller enables users to Login to their account
  */
-import com.miw.database.JdbcClientDao;
+
+import com.google.gson.Gson;
 import com.miw.model.Credentials;
 import com.miw.service.authentication.AuthenticationService;
 import com.miw.service.authentication.TokenService;
-import io.jsonwebtoken.Claims;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
-import javax.validation.Valid;
-import javax.validation.constraints.Email;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
-@Validated
 public class LoginController {
 
     private AuthenticationService authenticationService;
-    private TokenService tokenService;
-    private JdbcClientDao jdbcClientDao;
-
-    private final Logger logger = LoggerFactory.getLogger(LoginController.class);
+    private Gson gson;
+    private final Logger logger = LoggerFactory.getLogger(com.miw.controller.LoginController.class);
 
     @Autowired
-    public LoginController(AuthenticationService authenticationService, TokenService ts, JdbcClientDao jdbcClientDao) {
+    public LoginController(AuthenticationService authenticationService, Gson gson) {
         super();
         this.authenticationService = authenticationService;
-        this.tokenService = ts;
-        this.jdbcClientDao = jdbcClientDao;
+        this.gson = gson;
         logger.info("New LoginController Created");
     }
 
-    // TODO Eventueel JWT implementeren
     @PostMapping("/login")
-    public ResponseEntity<?> loginUser(@Valid @RequestBody Credentials credentials) {
-        String token = authenticationService.authenticate(credentials);
-        if (!token.isEmpty()) {
-            return new ResponseEntity<>("Token: " + token, HttpStatus.OK);
-        }
-        return new ResponseEntity<>("Invalid log-in details", HttpStatus.UNAUTHORIZED);
+    public ResponseEntity<?> loginUser(@RequestBody String credentialsAsJson) {
+        Credentials credentials = gson.fromJson(credentialsAsJson, Credentials.class);
+        String response = authenticationService.authenticate(credentials);
+        return informLoginStatusCode(response);
     }
 
-    // TODO Eventueel deze methode hieruit halen, alleen voor test-doeleinden bedoeld
-    @GetMapping("/gegevens/{email}")
-    public ResponseEntity<?> showMyData(@RequestHeader("Authorization") String token, @PathVariable("email") @Email String email) {
-        //Claims claims = tokenService.decodeJwt
-
-        if (tokenService.decodeJWTBool(token)) {
-            return ResponseEntity.ok(jdbcClientDao.findByEmail(email));
+    @PostMapping("/authenticate")
+    public ResponseEntity<?> authenticate(@RequestBody String token) {
+        if (TokenService.validateJWT(token)) {
+            return ResponseEntity.status(HttpStatus.OK).build();
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
     }
+
+    @PostMapping("/getID")
+    public int getuserID(@RequestBody String token) {
+        return TokenService.getValidUserID(token);
+    }
+
+    public ResponseEntity<?> informLoginStatusCode(String response) {
+        Map<String, String> responseMessage = new HashMap<>();
+        if (response.equals(authenticationService.getINVALID_CREDENTIALS())){
+            responseMessage.put("message", authenticationService.getINVALID_CREDENTIALS());
+            return new ResponseEntity<>(responseMessage, HttpStatus.UNAUTHORIZED);
+        } else if (response.equals(authenticationService.getBLOCKED_USER())) {
+            responseMessage.put("message", authenticationService.getBLOCKED_USER());
+            return new ResponseEntity<>(responseMessage, HttpStatus.FORBIDDEN);
+        }
+        responseMessage.put("userRole", TokenService.getRole(response));
+        responseMessage.put("token", response);
+        return new ResponseEntity<>(responseMessage, HttpStatus.OK);
+    }
+
 
 }

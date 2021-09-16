@@ -1,7 +1,9 @@
-package com.miw.service.authentication;
+package miw.service.authentication;
 
-import com.miw.model.Client;
-import com.miw.service.RegistrationService;
+import com.miw.model.User;
+import com.miw.service.authentication.HashHelper;
+import com.miw.service.authentication.PepperService;
+import com.miw.service.authentication.SaltMaker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,18 +31,18 @@ public class HashService {
         // eventueel controleren op te grote waarden (< 6)
     }
 
-    public Client hash(Client client) {
+    public User hash(User user) {
         String salt = saltMaker.generateSalt();
-        client.setSalt(salt);
-        String hash = HashHelper.hash(client.getPassword(), salt, pepperService.getPepper());
-        client.setPassword(processRounds(hash, numberOfRounds(rounds)));
-        return client;
+        user.setSalt(salt);
+        String hash = HashHelper.hash(user.getPassword(), salt, pepperService.getPepper());
+        user.setPassword(processRounds(hash, numberOfRounds(rounds)));
+        return user;
     }
 
-    public Client hashForAuthenticate (Client client) {
-        String hash = HashHelper.hash(client.getPassword(), client.getSalt(), pepperService.getPepper());
-        client.setPassword(processRounds(hash, numberOfRounds(rounds)));
-        return client;
+    public User hashForAuthenticate (User user) {
+        String hash = HashHelper.hash(user.getPassword(), user.getSalt(), pepperService.getPepper());
+        user.setPassword(processRounds(hash, numberOfRounds(rounds)));
+        return user;
     }
 
     private String processRounds(String hash, long r) {

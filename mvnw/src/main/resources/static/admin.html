@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin dashboard</title>
+    <link rel="stylesheet" href="partials/header.css">
+    <link rel="stylesheet" href="style.css">
+    <script src="/admin.js" defer></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+
+<body>
+
+<div class="header">
+    <div class="innerHeader">
+        Welcome to Bank Sinatra!
+        <div class="logoContainer">
+            <h1> <img width="120" height="100" style="object-position: left" alt="BSlogo" src="/images/BSLogo.png" ></h1>
+        </div>
+        <ul class="navigation">
+            <a><button id="bankfee">Change bank fee</button></a>
+            <a><button id="logout">Log out</button></a>
+        </ul>
+    </div>
+</div>
+
+<div id="overlay">
+    <form id="feeForm">
+        <h1>Change bank fee</h1>
+        <img id="close-overlay-btn" src="images/close_btn.png" alt="close-btn"><br>
+        <p>Specify the bank fee here (e.g. 0.01 for 1%):</p><br>
+        <input id="fee-input" type="number" name="fee-input" min="0" max="1" step ="0.01" placeholder="0.01" required><br><br>
+        <input id="submitFee" type="submit" value="Submit">
+    </form>
+</div>
+
+<div class="page">
+    <div class="column">
+        <form id="findUserForm">
+            Select a user:
+            <input id="email-input" type="email" name="email-input" placeholder="name@mail.org" required><br>
+            <input id="submitEmail" type="submit" value="Submit">
+        </form>
+        <br><br>
+        <div id="userData" class="split left">
+            <table id="userTable"></table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

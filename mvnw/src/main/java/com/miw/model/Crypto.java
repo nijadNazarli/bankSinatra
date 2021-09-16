@@ -1,30 +1,70 @@
-package com.miw.model;
+package miw.model;
 
-public class Crypto {
+import java.util.Objects;
 
-    // ATTRIBUTES
+public class Crypto implements Comparable<com.miw.model.Crypto>{
+
     private String name;
     private String symbol;
     private String description;
-    private double exchangeRate;
+    private double cryptoPrice;
 
-
-    // CONSTRUCTORS
-    public Crypto(String name, String symbol, String description) {
+    public Crypto(String name, String symbol, String description, Double cryptoPrice) {
         this.name = name;
         this.symbol = symbol;
         this.description = description;
-        this.exchangeRate = retrieveValue();
+        this.cryptoPrice = cryptoPrice;
     }
 
-    // METHODS
+    public Crypto(){}
+
     private double retrieveValue() {
         //TODO: get recent value of cryptocoin thru API?
         return 0.0;
     }
 
-    // GETTERS & SETTERS
-    public double getValue() {
-        return exchangeRate;
+
+    public String getName() {
+        return name;
+    }
+
+    public String getSymbol() {
+        return symbol;
+    }
+
+    public double getCryptoPrice() {
+        return cryptoPrice;
+    }
+
+    public void setCryptoPrice(double cryptoPrice) {
+        this.cryptoPrice = cryptoPrice;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        com.miw.model.Crypto crypto = (com.miw.model.Crypto) o;
+        return symbol.equals(crypto.symbol);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name);
+    }
+
+    @Override
+    public String toString() {
+        return "Crypto{" +
+                ", name='" + name + '\'' +
+                ", symbol='" + symbol + '\'' +
+                ", description='" + description + '\'' +
+                ", cryptoPrice=" + cryptoPrice +
+                '}';
+    }
+
+    @Override
+    public int compareTo(com.miw.model.Crypto o) {
+        return this.name.compareTo(o.getName());
     }
 }

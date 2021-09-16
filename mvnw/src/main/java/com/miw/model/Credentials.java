@@ -1,4 +1,4 @@
-package com.miw.model;
+package miw.model;
 /**
  * @Author: Nijad Nazarli
  * @Description: This class is used to conveniently pass on client details
@@ -30,7 +30,7 @@ public class Credentials {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Credentials that = (Credentials) o;
+        com.miw.model.Credentials that = (com.miw.model.Credentials) o;
         return Objects.equals(email, that.email) && Objects.equals(password, that.password);
     }
 
