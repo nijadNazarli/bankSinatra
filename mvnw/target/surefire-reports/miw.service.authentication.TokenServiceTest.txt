@@ -1,0 +1,16 @@
+-------------------------------------------------------------------------------
+Test set: miw.service.authentication.TokenServiceTest
+-------------------------------------------------------------------------------
+Tests run: 2, Failures: 0, Errors: 2, Skipped: 0, Time elapsed: 0.421 s <<< FAILURE! - in miw.service.authentication.TokenServiceTest
+jwtBuilder  Time elapsed: 0.415 s  <<< ERROR!
+io.jsonwebtoken.SignatureException: JWT signature does not match locally computed signature. JWT validity cannot be asserted and should not be trusted.
+	at miw.service.authentication.TokenServiceTest.jwtBuilder(TokenServiceTest.java:44)
+
+decodeJWT  Time elapsed: 0.006 s  <<< ERROR!
+io.jsonwebtoken.MalformedJwtException: Unable to read JSON value: ��!L��؉
+	at miw.service.authentication.TokenServiceTest.decodeJWT(TokenServiceTest.java:70)
+Caused by: com.fasterxml.jackson.core.JsonParseException: 
+Unexpected character ('�' (code 65533 / 0xfffd)): expected a valid value (JSON String, Number, Array, Object or token 'null', 'true' or 'false')
+ at [Source: (String)"��!L��؉"; line: 1, column: 2]
+	at miw.service.authentication.TokenServiceTest.decodeJWT(TokenServiceTest.java:70)
+

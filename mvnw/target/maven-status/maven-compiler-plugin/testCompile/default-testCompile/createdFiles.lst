@@ -1,0 +1,5 @@
+miw\service\RegistrationServiceTest.class
+miw\controller\LoginControllerTest.class
+miw\model\CredentialsTest.class
+miw\service\authentication\AuthenticationServiceTest.class
+miw\service\authentication\TokenServiceTest.class
