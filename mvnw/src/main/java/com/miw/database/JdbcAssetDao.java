@@ -2,7 +2,7 @@
  * @Author Johnny Chan
  * Deze DAO-class haalt de crypto-assets uit de SQL-database.
  */
-package miw.database;
+package com.miw.database;
 
 import com.miw.model.Account;
 import com.miw.model.Asset;
@@ -15,12 +15,11 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
-
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.*;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -36,6 +35,11 @@ public class JdbcAssetDao {
         logger.info("JdbcAssetDAO-object created.");
     }
 
+    public void saveAsset(int accountID, String symbol, double units) {
+        jdbcTemplate.update(connection -> insertAssetStatement(accountID, symbol, units, connection));
+        logger.info("New asset has been saved to the database.");
+    }
+
     private PreparedStatement insertAssetStatement (int accountId, String symbol, double units, Connection connection) throws SQLException {
         PreparedStatement ps = connection.prepareStatement(
                 "INSERT INTO Asset (accountID, symbol, units)" + "VALUES (?, ?, ?)");
@@ -45,22 +49,17 @@ public class JdbcAssetDao {
         return ps;
     }
 
-    public Asset getAssetBySymbol(int accountId, String symbol) {
-        String sql = "SELECT a.symbol, name, cryptoPrice, units, description, dateRetrieved " +
-                "FROM (Asset a JOIN Crypto c ON a.symbol = c.symbol) " +
-                "JOIN CryptoPrice p ON p.symbol = c.symbol " +
+    public Asset getAssetBySymbol(int accountId, String symbol) throws EmptyResultDataAccessException {
+        String sql = "SELECT a.accountId, a.unitsForSale, a.salePrice, a.symbol, name, cryptoPrice, units, description, dateRetrieved" +
+                " FROM (Asset a JOIN Crypto c ON a.symbol = c.symbol) JOIN CryptoPrice p ON p.symbol = c.symbol " +
                 "WHERE accountID = ? AND a.symbol = ? AND dateRetrieved >= DATE_ADD(" +
-                "   (SELECT dateRetrieved FROM CryptoPrice " +
-                "   ORDER BY ABS(TIMESTAMPDIFF(second, dateRetrieved, CURRENT_TIMESTAMP)) LIMIT 1)" +
-                "   , INTERVAL -10 SECOND)" +
-                "AND dateRetrieved <= DATE_ADD(" +
-                "   (SELECT dateRetrieved FROM CryptoPrice " +
-                "   ORDER BY ABS(TIMESTAMPDIFF(second, dateRetrieved, CURRENT_TIMESTAMP)) LIMIT 1)" +
-                "   , INTERVAL 10 SECOND);";
-        try{
+                "(SELECT dateRetrieved FROM CryptoPrice ORDER BY ABS(TIMESTAMPDIFF(second, dateRetrieved, CURRENT_TIMESTAMP))" +
+                " LIMIT 1), INTERVAL -10 SECOND) AND dateRetrieved <= DATE_ADD(" +
+                " (SELECT dateRetrieved FROM CryptoPrice ORDER BY ABS(TIMESTAMPDIFF(second, dateRetrieved, CURRENT_TIMESTAMP))" +
+                " LIMIT 1), INTERVAL 10 SECOND);";
+        try {
             return jdbcTemplate.queryForObject(sql, new AssetRowMapper(), accountId, symbol);
-        }catch (Exception e){
-            e.printStackTrace();
+        } catch (EmptyResultDataAccessException e){
             return null;
         }
     }
@@ -84,7 +83,7 @@ public class JdbcAssetDao {
     }
 
     public List<Asset> getAssets(int accountId) {
-        String sql = "SELECT a.accountID, a.symbol, name, cryptoPrice, units, description, dateRetrieved " +
+        String sql = "SELECT a.unitsForSale, a.salePrice, a.accountID, a.symbol, name, cryptoPrice, units, description, dateRetrieved " +
                 "FROM (Asset a JOIN Crypto c ON a.symbol = c.symbol) " +
                 "JOIN CryptoPrice p ON p.symbol = c.symbol " +
                 "WHERE accountID = ? AND dateRetrieved >= DATE_ADD(" +
@@ -118,11 +117,6 @@ public class JdbcAssetDao {
         Double units = jdbcTemplate.queryForObject(sql, Double.class, accountId, symbol, accountId, symbol, dateTime,
                 accountId, symbol, dateTime);
         return (units != null) ? units : 0.0;
-    }
-
-    public void saveAsset(int accountID, String symbol, double units) {
-        jdbcTemplate.update(connection -> insertAssetStatement(accountID, symbol, units, connection));
-        logger.info("New asset has been saved to the database.");
     }
 
     public void updateAsset(double newUnits, String symbol, int accountId){
@@ -160,12 +154,39 @@ public class JdbcAssetDao {
         }
     }
 
+    public Map<Double, Double> getUnitsForSaleAndPrice(String symbol, int accountId) {
+        String sql = "SELECT unitsForSale, salePrice FROM Asset WHERE symbol = ? AND accountID = ?;";
+        try {
+            Map<Double, Double> unitsForSaleWithPrice = new HashMap<>();
+            unitsForSaleWithPrice = jdbcTemplate.query(sql, new UnitsForSaleExtractor(), symbol, accountId);
+            return unitsForSaleWithPrice;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public double getAssetDeltaPct(int accountId, String symbol, LocalDateTime dateTime) {
+        String sql = "SELECT ROUND(((q1.currentValue - q2.pastValue)/q2.pastValue * 100), 2) AS deltaPct " +
+                "FROM " +
+                "(SELECT c.symbol, (a.units * c.cryptoPrice) currentValue " +
+                "FROM CryptoPrice c JOIN Asset a ON c.symbol = a.symbol " +
+                "WHERE c.symbol = ? AND accountID = ? " +
+                "ORDER BY ABS(TIMESTAMPDIFF(second, dateRetrieved, CURRENT_TIMESTAMP)) LIMIT 1) AS q1 " +
+                "JOIN " +
+                "(SELECT c.symbol, (a.units * c.cryptoPrice) pastValue " +
+                "FROM CryptoPrice c JOIN Asset a ON c.symbol = a.symbol " +
+                "WHERE c.symbol = ? AND accountID = ? " +
+                "ORDER BY ABS(TIMESTAMPDIFF(second, dateRetrieved, ?)) LIMIT 1) AS q2 " +
+                "ON q1.symbol = q2.symbol;";
+        return jdbcTemplate.queryForObject(sql, Double.class, symbol, accountId, symbol, accountId, dateTime);
+    }
+
     private static class AssetRowMapper implements RowMapper<Asset> {
 
         @Override
         public Asset mapRow(ResultSet resultSet, int i) throws SQLException {
-            Asset asset = null;
-            Integer accountId = resultSet.getInt("accountID");
+            int accountId = resultSet.getInt("accountID");
             String name = resultSet.getString("name");
             String symbol = resultSet.getString("symbol");
             String description = resultSet.getString("description");
@@ -174,12 +195,8 @@ public class JdbcAssetDao {
             double units = resultSet.getDouble("units");
             double unitsForSale = resultSet.getDouble("unitsForSale");
             double salePrice = resultSet.getDouble("salePrice");
-            asset = new Asset(crypto, units);
-            Account account = new Account();
-            account.setAccountId(accountId);
-            asset.setAccount(account);
-            asset.setUnitsForSale(unitsForSale);
-            asset.setSalePrice(salePrice);
+            Asset asset = new Asset(crypto, units, unitsForSale, salePrice);
+            asset.setAccountId(accountId);
             return asset;
         }
     }
@@ -215,5 +232,17 @@ public class JdbcAssetDao {
         }
     }
 
+    private static class UnitsForSaleExtractor implements ResultSetExtractor<Map<Double, Double>>{
+        @Override
+        public Map<Double, Double> extractData(ResultSet resultSet) throws SQLException, DataAccessException {
+            Map<Double, Double> unitsForSaleWithPrice = new HashMap<>();
+            while (resultSet.next()) {
+                double unitsForSale = resultSet.getDouble("unitsForSale");
+                double salePrice = resultSet.getDouble("salePrice");
+                unitsForSaleWithPrice.put(unitsForSale, salePrice);
+            }
+            return unitsForSaleWithPrice;
+        }
+    }
 
 }

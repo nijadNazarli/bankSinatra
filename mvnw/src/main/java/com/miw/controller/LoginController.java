@@ -1,4 +1,4 @@
-package miw.controller;
+package com.miw.controller;
 /**
  * @Author: Nijad Nazarli
  * @Description: This controller enables users to Login to their account
@@ -13,10 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
-
+import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,7 +22,7 @@ public class LoginController {
 
     private AuthenticationService authenticationService;
     private Gson gson;
-    private final Logger logger = LoggerFactory.getLogger(com.miw.controller.LoginController.class);
+    private final Logger logger = LoggerFactory.getLogger(LoginController.class);
 
     @Autowired
     public LoginController(AuthenticationService authenticationService, Gson gson) {

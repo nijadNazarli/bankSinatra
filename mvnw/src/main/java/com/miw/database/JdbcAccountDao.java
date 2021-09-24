@@ -1,4 +1,4 @@
-package miw.database;
+package com.miw.database;
 
 import com.miw.model.Account;
 import org.slf4j.Logger;
@@ -10,14 +10,13 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
-
 import java.sql.*;
 
 @Repository
 public class JdbcAccountDao {
 
     private JdbcTemplate jdbcTemplate;
-    private final Logger logger = LoggerFactory.getLogger(com.miw.database.JdbcAccountDao.class);
+    private final Logger logger = LoggerFactory.getLogger(JdbcAccountDao.class);
 
     @Autowired
     public JdbcAccountDao(JdbcTemplate jdbcTemplate) {
@@ -49,7 +48,7 @@ public class JdbcAccountDao {
     public Account getAccountByUserID(int userId){
         String sql = "SELECT * FROM Account WHERE userID = ?;";
         try {
-            return jdbcTemplate.queryForObject(sql, new com.miw.database.JdbcAccountDao.AccountRowMapper(), userId);
+            return jdbcTemplate.queryForObject(sql, new AccountRowMapper(), userId);
         } catch (EmptyResultDataAccessException e) {
             logger.info("Account does not exist in the database");
             return null;
@@ -59,7 +58,7 @@ public class JdbcAccountDao {
     public Account getAccountByID(int accountId){
         String sql = "SELECT * FROM Account WHERE accountID = ?;";
         try {
-            return jdbcTemplate.queryForObject(sql, new com.miw.database.JdbcAccountDao.AccountRowMapper(), accountId);
+            return jdbcTemplate.queryForObject(sql, new AccountRowMapper(), accountId);
         } catch (EmptyResultDataAccessException e) {
             logger.info("Account does not exist in the database");
             return null;
@@ -67,9 +66,9 @@ public class JdbcAccountDao {
     }
 
     public Account getAccountByEmail(String email) {
-        String sql = "SELECT * FROM Account WHERE userID = ( SELECT userID FROM user WHERE email = ?);";
+        String sql = "SELECT * FROM Account WHERE userID = ( SELECT userID FROM User WHERE email = ?);";
         try {
-            return jdbcTemplate.queryForObject(sql, new com.miw.database.JdbcAccountDao.AccountRowMapper(), email);
+            return jdbcTemplate.queryForObject(sql, new AccountRowMapper(), email);
         } catch (EmptyResultDataAccessException e) {
             logger.info("Account does not exist in the database");
             return null;
@@ -77,9 +76,9 @@ public class JdbcAccountDao {
     }
 
     public Account getAccountByBsn (int bsn){
-        String sql = "SELECT * FROM Account WHERE userID = ( SELECT userID FROM user WHERE bsn = ?);";
+        String sql = "SELECT * FROM Account WHERE userID = ( SELECT userID FROM User WHERE bsn = ?);";
         try{
-            return jdbcTemplate.queryForObject(sql, new com.miw.database.JdbcAccountDao.AccountRowMapper(), bsn);
+            return jdbcTemplate.queryForObject(sql, new AccountRowMapper(), bsn);
         } catch (EmptyResultDataAccessException e) {
             logger.info("Account does not exist in the database");
             return null;
@@ -87,7 +86,7 @@ public class JdbcAccountDao {
     }
 
     public double getBalanceByEmail(String email) {
-        String sql = "SELECT balance FROM Account WHERE userID = ( SELECT userID FROM user WHERE email = ?);";
+        String sql = "SELECT balance FROM Account WHERE userID = ( SELECT userID FROM User WHERE email = ?);";
         try {
             return jdbcTemplate.queryForObject(sql, Double.class, email);
         } catch (EmptyResultDataAccessException e) {

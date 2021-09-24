@@ -1,6 +1,8 @@
-package miw.database;
+package com.miw.database;
 
+import com.miw.model.Asset;
 import com.miw.model.Crypto;
+import com.sun.source.tree.Tree;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +12,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
-
 import java.sql.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -18,13 +19,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-// TODO: id's uit crypto wegwerken, primary key -> symbol
 
 @Repository
 public class JdbcCryptoDao {
 
     private final Logger logger = LoggerFactory.getLogger(JdbcCryptoDao.class);
-
     private JdbcTemplate jdbcTemplate;
 
     @Autowired
@@ -34,7 +33,6 @@ public class JdbcCryptoDao {
         logger.info("New JdbcCryptoDao");
     }
 
-    // insert met gebruik van symbol ipv id
     private PreparedStatement insertPriceStatement
     (String symbol, double price, LocalDateTime time, Connection connection) throws SQLException {
         PreparedStatement ps = connection.prepareStatement(
@@ -46,6 +44,10 @@ public class JdbcCryptoDao {
         ps.setDouble(2, price);
         ps.setTimestamp(3, Timestamp.valueOf(time));
         return ps;
+    }
+
+    public void saveCryptoPriceBySymbol(String symbol, double price, LocalDateTime time) {
+        jdbcTemplate.update(connection -> insertPriceStatement(symbol, price, time, connection));
     }
 
     // Selecteert een crypto uit de db, neemt daarbij automatisch de meest recente opgeslagen prijs in het object op
@@ -95,18 +97,14 @@ public class JdbcCryptoDao {
 
     // Returns map of crypto values with accommodating key ("min", "max", "avg") of each day from now until certain past date
     public Map<LocalDate, Map<String, Double>> getDayValuesByCrypto(String symbol, int daysBack) {
-        String sql = "Select symbol, AVG(cryptoPrice) avg, MIN(cryptoPrice) min, MAX(cryptoPrice) max, date(dateRetrieved) FROM cryptoprice WHERE symbol = ? " +
-                "AND dateRetrieved BETWEEN date_add(current_timestamp(),  INTERVAL -? DAY) AND current_timestamp() GROUP BY DATE(dateRetrieved);";
+        String sql = "Select symbol, AVG(cryptoPrice) avg, MIN(cryptoPrice) min, MAX(cryptoPrice) max, date(dateRetrieved) FROM CryptoPrice WHERE symbol = ? " +
+                "AND dateRetrieved BETWEEN timestamp(curdate() -?) AND current_timestamp() GROUP BY DATE(dateRetrieved);";
         try {
             return jdbcTemplate.query(sql, new CryptoStatsSetExtractor(), symbol, daysBack);
         } catch (EmptyResultDataAccessException e) {
             logger.info("Failed to get average, minimum and max crypto values per day of the following crypto: " + symbol);
             return null;
         }
-    }
-
-    public void saveCryptoPriceBySymbol(String symbol, double price, LocalDateTime time) {
-        jdbcTemplate.update(connection -> insertPriceStatement(symbol, price, time, connection));
     }
 
     public List<Crypto> getAllCryptos() {
@@ -124,12 +122,86 @@ public class JdbcCryptoDao {
         try {
             return jdbcTemplate.query(sql, new CryptoRowMapper());
         } catch (EmptyResultDataAccessException e) {
-            logger.info("Failed to get past crypto price by symbol");
+            logger.info("Failed to fetch list of all cryptos from database.");
             return null;
         }
     }
 
+    public Map<LocalDate, Map<String, Double>> getPricesPerDate() {
+        String sql = "SELECT date(dateRetrieved) date, symbol, avg(cryptoprice) avgCryptoprice FROM CryptoPrice\n" +
+                "GROUP BY day(dateRetrieved), symbol ORDER BY date;";;
+        try {
+            return jdbcTemplate.query(sql, new AverageCryptopriceSetExtractor());
+        } catch (EmptyResultDataAccessException e) {
+            logger.info("Failed to retrieve prices of each crypto per day");
+            return null;
+        }
+    }
+
+    public LocalDateTime getLatestAPICallTime() {
+        String sql = "SELECT MAX(dateRetrieved) FROM CryptoPrice;";
+        try {
+            return jdbcTemplate.queryForObject(sql, LocalDateTime.class);
+        } catch (EmptyResultDataAccessException e) {
+            logger.info("Failed to find the latest API call time.");
+            return null;
+        }
+    }
+
+    public Map<String, Double> getPriceDeltas(LocalDateTime dateTime) {
+        String sql = "SELECT q1.symbol, ROUND(((q1.cryptoPrice - q2.cryptoPrice)/q2.cryptoPrice * 100), 2) AS priceDelta" +
+                " FROM " +
+                "(SELECT * FROM CryptoPrice " +
+                "WHERE dateRetrieved >= DATE_ADD( " +
+                "   (SELECT dateRetrieved FROM CryptoPrice " +
+                "   ORDER BY ABS(TIMESTAMPDIFF(second, dateRetrieved, CURRENT_TIMESTAMP)) LIMIT 1) " +
+                "   , INTERVAL -10 SECOND) " +
+                "   AND " +
+                "   dateRetrieved <= DATE_ADD(" +
+                "   (SELECT dateRetrieved FROM CryptoPrice " +
+                "   ORDER BY ABS(TIMESTAMPDIFF(second, dateRetrieved, CURRENT_TIMESTAMP)) LIMIT 1) " +
+                "   , INTERVAL 10 SECOND) " +
+                ") q1 " +
+                "LEFT JOIN " +
+                "(SELECT * FROM CryptoPrice " +
+                "WHERE dateRetrieved >= DATE_ADD( " +
+                "   (SELECT dateRetrieved FROM CryptoPrice " +
+                "   ORDER BY ABS(TIMESTAMPDIFF(second, dateRetrieved, ?)) LIMIT 1) " +
+                "   , INTERVAL -10 SECOND) " +
+                "   AND " +
+                "   dateRetrieved <= DATE_ADD( " +
+                "   (SELECT dateRetrieved FROM CryptoPrice " +
+                "   ORDER BY ABS(TIMESTAMPDIFF(second, dateRetrieved, ?)) LIMIT 1) " +
+                "   , INTERVAL 10 SECOND) " +
+                ") q2 " +
+                "ON q1.symbol = q2.symbol;";
+        return jdbcTemplate.query(sql, new PriceDeltaExtractor(), dateTime, dateTime);
+    }
+
     //Rowmappers
+
+    private static class AverageCryptopriceSetExtractor implements ResultSetExtractor<Map<LocalDate, Map<String, Double>>> {
+
+        @Override
+        public Map<LocalDate, Map<String, Double>> extractData(ResultSet resultSet) throws SQLException, DataAccessException {
+            Map<LocalDate, Map<String, Double>> pricesPerDate = new TreeMap<>();
+            while (resultSet.next()) {
+                String symbol = resultSet.getString("symbol");
+                double price = resultSet.getDouble("avgCryptoprice");
+                LocalDate date = resultSet.getDate("date").toLocalDate();
+                if (pricesPerDate.containsKey(date)) {
+                    pricesPerDate.get(date).put(symbol, price);
+                } else {
+                    Map<String, Double> pricePerSymbol = new TreeMap<>();
+                    pricePerSymbol.put(symbol, price);
+                    pricesPerDate.put(date, pricePerSymbol);
+                }
+            }
+            return pricesPerDate;
+        }
+    }
+
+
     private static class CryptoStatsSetExtractor implements ResultSetExtractor<Map<LocalDate, Map<String, Double>>> {
 
         @Override
@@ -150,8 +222,6 @@ public class JdbcCryptoDao {
         }
     }
 
-
-
     private static class CryptoRowMapper implements RowMapper<Crypto> {
 
         @Override
@@ -162,6 +232,20 @@ public class JdbcCryptoDao {
             Double price = resultSet.getDouble("cryptoPrice");
             Crypto crypto = new Crypto(name, symbol, description, price);
             return crypto;
+        }
+    }
+
+    private static class PriceDeltaExtractor implements ResultSetExtractor<Map<String, Double>> {
+
+        @Override
+        public Map<String, Double> extractData(ResultSet resultSet) throws SQLException, DataAccessException {
+            Map<String, Double> priceDeltas = new TreeMap<>();
+            while (resultSet.next()) {
+                String symbol = resultSet.getString("symbol");
+                double priceDelta = resultSet.getDouble("priceDelta");
+                priceDeltas.put(symbol, priceDelta);
+            }
+            return priceDeltas;
         }
     }
 }

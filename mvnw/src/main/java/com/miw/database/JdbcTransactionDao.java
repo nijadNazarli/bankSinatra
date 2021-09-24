@@ -1,19 +1,24 @@
-package miw.database;
+package com.miw.database;
 
 import com.miw.model.Crypto;
 import com.miw.model.Transaction;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.sql.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 @Repository
 public class JdbcTransactionDao {
@@ -53,7 +58,7 @@ public class JdbcTransactionDao {
     }
 
     public double getBankCosts() {
-        String sql = "SELECT * FROM `Bankingfee`";
+        String sql = "SELECT * FROM `BankingFee`";
         return jdbcTemplate.queryForObject(sql, Double.class);
     }
 
@@ -90,16 +95,96 @@ public class JdbcTransactionDao {
         return datetime;
     }
 
-    // TODO: nog testen of dit werkt
-    public List<Transaction> getTransactionsByUserId (int userId) {
-        String sql = "SELECT * FROM Transaction WHERE accountID_buyer = (SELECT accountID FROM Account WHERE userID = ?) " +
-                "OR accountID_seller = (SELECT accountID FROM Account WHERE userID = ?)";
-        return jdbcTemplate.query(sql, new TransactionRowMapper(), userId, userId);
+    public List<Transaction> getTransactionsByUserIdSeller (int userId) {
+        String sql = "SELECT * FROM Transaction t JOIN Crypto c ON t.symbol = c.symbol " +
+                "WHERE accountID_seller = (SELECT accountID from Account WHERE userID = ?) " +
+                "ORDER BY date desc;";
+        return jdbcTemplate.query(sql, new TransactionRowMapper(), userId);
     }
 
-//    public Double getCryptoUnitsByDate(String crytpoSymbol, Date date) {
-//        String sql = "SELECT "
-//    }
+    public List<Transaction> getTransactionsByUserIdBuyer(int userId){
+        String sql = "SELECT * FROM Transaction t JOIN Crypto c ON t.symbol = c.symbol " +
+                "WHERE accountID_buyer = (SELECT accountID from Account WHERE userID = ?) " +
+                "ORDER BY date desc; ";
+        return jdbcTemplate.query(sql, new TransactionRowMapper(), userId);
+    }
+
+    public Map<LocalDate, Map<String, Double>> getBoughtUnitsPerDay(int userID) {
+        String sql = "SELECT date(date) date, symbol, units FROM Transaction WHERE accountID_buyer = ? GROUP BY date, symbol";;
+        try {
+            return jdbcTemplate.query(sql, new UnitsSetExtractor(), userID);
+        } catch (EmptyResultDataAccessException e) {
+            logger.info("Failed to retrieve bought units of each crypto per day");
+            return null;
+        }
+    }
+
+    public Map<LocalDate, Map<String, Double>> getSoldUnitsPerDay(int userID) {
+        String sql = "SELECT date(date) date, symbol, units FROM Transaction WHERE accountID_seller = ? GROUP BY date, symbol";;
+        try {
+            return jdbcTemplate.query(sql, new UnitsSetExtractor(), userID);
+        } catch (EmptyResultDataAccessException e) {
+            logger.info("Failed to retrieve sold units of each crypto per day");
+            return null;
+        }
+    }
+
+    // Returns total portfolio value of 1 day,
+    // daysBack =
+    // vandaag = 0, gisteren = 1, eergisteren = 2 etc.
+    public double getPortfolioValueByDate(int userID, int daysBack) {
+        String sql = "SELECT coalesce(SUM(ROUND((cryptoPrice * tr.totalUnits), 2)),0) portfolioValue " +
+                "FROM " +
+                "(SELECT symbol, date(dateRetrieved), cryptoPrice " +
+                "FROM CryptoPrice WHERE dateRetrieved = " +
+                "(SELECT max(dateRetrieved) " +
+                "FROM CryptoPrice WHERE dateRetrieved " +
+                "BETWEEN timestamp(curdate() -?) AND timestamp(curdate() +(1-?)))) cr " +
+                "JOIN " +
+                "(SELECT bought.symbol, ifnull(bought.units-sold.units, bought.units) totalUnits " +
+                "FROM (SELECT SUM(units) units, accountID_buyer, symbol " +
+                "FROM Transaction " +
+                "WHERE accountID_buyer = ? " +
+                "AND date < timestamp(curdate()+(1-?)) GROUP BY symbol) bought " +
+                "LEFT JOIN \n" +
+                "(SELECT SUM(units) units, accountID_seller, symbol FROM Transaction " +
+                "WHERE accountID_seller = ? " +
+                "AND date < timestamp(curdate()+(1-?)) GROUP BY symbol) sold " +
+                "ON bought.symbol = sold.symbol) tr " +
+                "ON cr.symbol = tr.symbol;";
+        try {
+            return jdbcTemplate.queryForObject(sql, Double.class, daysBack, daysBack, userID, daysBack, userID, daysBack);
+        } catch (NullPointerException e) {
+            return 0.0;
+        }
+    }
+
+
+
+    // Rowmappers
+
+    private static class UnitsSetExtractor implements ResultSetExtractor<Map<LocalDate, Map<String, Double>>> {
+
+        @Override
+        public Map<LocalDate, Map<String, Double>> extractData(ResultSet resultSet) throws SQLException, DataAccessException {
+            Map<LocalDate, Map<String, Double>> unitsPerDate = new TreeMap<>();
+            while (resultSet.next()) {
+                String symbol = resultSet.getString("symbol");
+                double units = resultSet.getDouble("units");
+                LocalDate date = resultSet.getDate("date").toLocalDate();
+                if (unitsPerDate.containsKey(date)){
+                    unitsPerDate.get(date).put(symbol,units);
+                }
+                else{
+                    Map<String, Double> unitsPerSymbol = new TreeMap<>();
+                    unitsPerSymbol.put(symbol, units);
+                    unitsPerDate.put(date, unitsPerSymbol);
+                }
+            }
+            return unitsPerDate;
+        }
+    }
+    
 
     private static class TransactionRowMapper implements RowMapper<Transaction> {
 
@@ -108,8 +193,10 @@ public class JdbcTransactionDao {
             int transactionId = resultSet.getInt("transactionID");
             int buyer = resultSet.getInt("accountID_buyer");
             int seller = resultSet.getInt("accountID_seller");
-            Crypto crypto = new Crypto();
             double units = resultSet.getDouble("units");
+            String symbol = resultSet.getString("symbol");
+            Crypto crypto = new Crypto();
+            crypto.setSymbol(symbol);
             double transactionPrice = resultSet.getDouble("transactionPrice");
             double bankCosts = resultSet.getDouble("bankingFee");
             LocalDateTime transactionDate = resultSet.getObject("date", LocalDateTime.class);

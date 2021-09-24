@@ -2,27 +2,23 @@
  * @Author: Johnny Chan en Renée Jansen.
  * Deze class mapt de /register endpoints voor nieuwe klanten en admins.
  */
-package miw.controller;
+package com.miw.controller;
 
 import com.google.gson.*;
 import com.miw.model.Administrator;
 import com.miw.model.Client;
 import com.miw.service.authentication.HashService;
 import com.miw.service.authentication.RegistrationService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
-
+import org.springframework.web.bind.annotation.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.lang.reflect.Type;
 import java.time.LocalDate;
-import java.util.Map;
-
+import java.util.*;
 
 @RestController
 @Validated
@@ -32,7 +28,7 @@ public class RegisterController {
     private HashService hashService;
     private Gson gson;
 
-    private final Logger logger = LoggerFactory.getLogger(com.miw.controller.RegisterController.class);
+    private final Logger logger = LoggerFactory.getLogger(RegisterController.class);
 
     @Autowired
     public RegisterController(RegistrationService registrationService, HashService hashService) {
@@ -54,7 +50,7 @@ public class RegisterController {
         Client client = gson.fromJson(clientDetails, Client.class);
         //Validatie volledigheid en juiste format van input. Validatie-eisen staan bij de attributen in de domeinklassen zelf.
         Map<String, String> violationsMap = registrationService.validateUserDetails(client);
-        System.out.println("violations zijn: " + violationsMap);
+//        System.out.println("violations zijn: " + violationsMap);
         if (!violationsMap.isEmpty()) {
             return ResponseEntity.unprocessableEntity().body(violationsMap);
         }

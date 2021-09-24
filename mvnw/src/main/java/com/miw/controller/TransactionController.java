@@ -1,7 +1,6 @@
-package miw.controller;
+package com.miw.controller;
 
 import com.google.gson.*;
-import com.miw.model.Crypto;
 import com.miw.model.Transaction;
 import com.miw.service.TransactionService;
 import com.miw.service.authentication.TokenService;
@@ -11,11 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.lang.reflect.Type;
 import java.time.LocalDateTime;
-import java.util.List;
-
 
 @RestController
 public class TransactionController {
@@ -30,46 +25,37 @@ public class TransactionController {
     public TransactionController(TransactionService transactionService){
         super();
         this.transactionService = transactionService;
-        gson = new GsonBuilder().registerTypeAdapter(LocalDateTime.class, new JsonDeserializer<LocalDateTime>() {
-            @Override
-            public LocalDateTime deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
-                return LocalDateTime.parse(jsonElement.getAsJsonPrimitive().getAsString());
-            }
-        }).create();
+        gson = new GsonBuilder().registerTypeAdapter(LocalDateTime.class, (JsonDeserializer<LocalDateTime>)
+                (jsonElement, type, jsonDeserializationContext) ->
+                        LocalDateTime.parse(jsonElement.getAsJsonPrimitive().getAsString())).create();
         logger.info("New TransactionController-object created");
     }
 
-    //TODO: Authorization zo instellen dat een ingelogde gebruiker niet als een andere gebruiker kan kopen
     //TODO: Methode verder opschonen
-    @PostMapping("/buy") //TODO: URL aanpassen naar marketplace?
-    public ResponseEntity<?> doTransaction(@RequestHeader("Authorization") String token, @RequestBody String transactionAsJson){
+    @PostMapping("/buy")
+    public ResponseEntity<?> doTransaction(@RequestHeader("Authorization") String token,
+                                           @RequestBody String transactionAsJson){
 
-        //Check 1: is the user trying to purchase/sell assets logged in?
         if (!TokenService.validateJWT(token)) {
             return new ResponseEntity<>("Invalid login credentials, try again", HttpStatus.UNAUTHORIZED);
         }
 
         Transaction transaction = gson.fromJson(transactionAsJson, Transaction.class);
         int userId = TokenService.getValidUserID(token);
+        int accountId = transactionService.getAccountByUserId(userId).getAccountId();
 
-        //Check 2: is the logged in user the buyer OR selling to the bank?
-        if(userId != transaction.getBuyer()){
-            if (!(userId == transaction.getSeller() && transaction.getBuyer() == ACCOUNTBANK)){
-                return new ResponseEntity<>("You are not authorized to purchase assets for another client," +
-                        " stop it", HttpStatus.CONFLICT); //TODO: is dit de juiste statuscode?
-            }
+        if(!authorizedTransaction(accountId, transaction)){
+            return new ResponseEntity<>("You are not authorized to purchase assets for another client," +
+                    " stop it", HttpStatus.UNAUTHORIZED);
         }
 
-        //Check 3: is the amount of units positive?
         if(transaction.getUnits() < 0){
             return new ResponseEntity<>("Buyer cannot purchase negative asssets. " +
                     "Transaction cannot be completed.", HttpStatus.CONFLICT);
         }
 
-        transaction = setPrice(transaction);
-        transaction = setCosts(transaction);
+        calculateCosts(transaction);
 
-        //Check 4 & 5: does the seller have enough assets & does the buyer have enough funds?
         if(!checkSufficientCrypto(transaction)){
             return new ResponseEntity<>("Seller has insufficient assets. Transaction cannot be completed.",
                     HttpStatus.CONFLICT);
@@ -84,6 +70,18 @@ public class TransactionController {
         return new ResponseEntity<>("Joepie de poepie, transactie gedaan", HttpStatus.OK);
     }
 
+    private boolean authorizedTransaction (int userId, Transaction transaction){
+        if (userId == transaction.getBuyer()) {
+            return true;
+        }
+        return userId == transaction.getSeller() && transaction.getBuyer() == ACCOUNTBANK;
+    }
+
+    private Transaction calculateCosts(Transaction transaction){
+        transaction = setPrice(transaction);
+        transaction = setCosts(transaction);
+        return transaction;
+    }
 
     private void transfer(Transaction transaction){
         transactionService.transferBalance(transaction.getSeller(), transaction.getBuyer(),
@@ -91,7 +89,7 @@ public class TransactionController {
         transactionService.transferCrypto(transaction.getSeller(), transaction.getBuyer(),
                 transaction.getCrypto(), transaction.getUnits());
         transactionService.transferBankCosts(transaction.getSeller(), transaction.getBuyer(),
-                transaction.getTransactionPrice(), transaction.getBankCosts());
+                transaction.getBankCosts());
     }
 
     private Transaction setPrice(Transaction transaction){
@@ -104,8 +102,8 @@ public class TransactionController {
 
     private boolean checkSufficientCrypto(Transaction transaction){
         try{
-            return transactionService.checkSufficientCrypto(transaction.getSeller(), transaction.getCrypto(),
-                    transaction.getUnits());
+            return transactionService.checkSufficientCrypto(transaction.getBuyer(), transaction.getSeller(),
+                    transaction.getCrypto(), transaction.getUnits());
         } catch (Exception e){
             e.printStackTrace();
             return false;
@@ -115,15 +113,5 @@ public class TransactionController {
     private boolean checkSufficientBalance(Transaction transaction){
         return transactionService.checkSufficientBalance(transaction.getSeller(), transaction.getBuyer(),
                 transaction.getTransactionPrice(), transaction.getBankCosts());
-    }
-
-    @GetMapping("/cryptos")
-    public ResponseEntity<?> getCryptoOverview(@RequestHeader("Authorization") String token) {
-        if (!TokenService.validateJWT(token)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-        //TODO: Map in Crypto toevoegen met prijsdeltas
-        List<Crypto> cryptoOverview = transactionService.getCryptoOverview();
-        return ResponseEntity.ok(cryptoOverview);
     }
 }

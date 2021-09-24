@@ -1,0 +1,97 @@
+* {
+    background-color: lightyellow;
+    color: black;
+}
+
+/* header */
+.header {
+    height: 120px;
+    width: 100%;
+    display: block;
+    background: #002932;
+    color: lightyellow;
+    font-size: 30px;
+    text-align: center;
+}
+
+/* structural elements below header */
+.page {
+    width: 100%;
+    margin: 40px;
+    font-size: 16px;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.top {
+    height: 120px;
+}
+
+.left {
+    float: left;
+    width: 35%;
+}
+
+.right {
+    float: right;
+    width: 55%;
+}
+
+/* logout and bank fee buttons */
+.menu {
+    float: right;
+    margin-right: 100px;
+}
+
+/* left hand side: table */
+#userTable {
+    width: 40%;
+    border-collapse: collapse;
+    font-size: 12px;
+    font-weight: normal;
+}
+
+#userTable, th, td {
+    border: 1px solid #ddd;
+    text-align: left;
+    vertical-align: text-bottom;
+}
+
+/* right hand side: portfolio */
+#portfolioData {
+    display: none;
+}
+
+.cryptoLogo {
+    width: 24px;
+    height: 24px;
+    border-radius: 12px;
+    margin-right: 5px;
+}
+
+#assetTable {
+    font-size: 12px;
+    border-collapse: collapse;
+    width: 60%;
+    max-height: 300px;
+    overflow-y: scroll;
+    display: inline-block;
+}
+
+#assetTable, th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+::-webkit-scrollbar{
+    width: 12px;
+}
+
+::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5);
+}

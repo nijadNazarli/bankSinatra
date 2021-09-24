@@ -1,6 +1,4 @@
-package miw.service.authentication;
-
-import com.miw.service.authentication.ByteArrayToHexHelper;
+package com.miw.service.authentication;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;

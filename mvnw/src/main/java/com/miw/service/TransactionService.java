@@ -1,14 +1,12 @@
-package miw.service;
+package com.miw.service;
 
 import com.miw.database.RootRepository;
-import com.miw.model.Crypto;
-import com.miw.model.Transaction;
-import com.miw.service.RegistrationService;
+import com.miw.model.*;
+import com.miw.service.authentication.RegistrationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 
 @Service
@@ -32,9 +30,14 @@ public class TransactionService {
     }
 
     public Transaction setTransactionPrice(Transaction transaction){
-        double salePrice = rootRepository.getAssetBySymbol(transaction.getSeller(),
-                transaction.getCrypto().getSymbol()).getSalePrice();
-        transaction.setTransactionPrice(salePrice * transaction.getUnits());
+        double price;
+        if (transaction.getBuyer() == accountBank){
+            price = rootRepository.getLatestPriceBySymbol(transaction.getCrypto().getSymbol());
+        } else {
+            price = rootRepository.getAssetBySymbol(transaction.getSeller(),
+                    transaction.getCrypto().getSymbol()).getSalePrice();
+        }
+        transaction.setTransactionPrice(price * transaction.getUnits());
         return transaction;
     }
 
@@ -46,16 +49,20 @@ public class TransactionService {
     public boolean checkSufficientBalance(int seller, int buyer, double transactionPrice, double bankCosts){
         double buyerBalance = rootRepository.getAccountById(buyer).getBalance();
         if (seller == accountBank){
-            return buyerBalance >= transactionPrice + (transactionPrice * bankCosts);
+            return buyerBalance >= transactionPrice + bankCosts;
         } else if (buyer == accountBank){
             return buyerBalance >= transactionPrice;
         } else {
-            return buyerBalance >= transactionPrice + (HALF * (transactionPrice * bankCosts));
+            return buyerBalance >= transactionPrice + (HALF * bankCosts);
         }
     }
 
-    public boolean checkSufficientCrypto(int seller, Crypto crypto, double units){
-        return rootRepository.getAssetBySymbol(seller, crypto.getSymbol()).getUnitsForSale() >= units;
+    public boolean checkSufficientCrypto(int buyer, int seller, Crypto crypto, double units){
+        if (buyer == accountBank){
+            return rootRepository.getAssetBySymbol(seller, crypto.getSymbol()).getUnits() >= units;
+        } else {
+            return rootRepository.getAssetBySymbol(seller, crypto.getSymbol()).getUnitsForSale() >= units;
+        }
     }
 
     public void transferBalance(int seller, int buyer, double transactionPrice){
@@ -64,51 +71,76 @@ public class TransactionService {
     }
 
     public void transferCrypto(int seller, int buyer, Crypto crypto, double units){
-       double newSellerAssetsForSale = rootRepository.getAssetBySymbol(seller, crypto.getSymbol()).getUnitsForSale() - units;
-       double newSellerTotalAssets = rootRepository.getAssetBySymbol(seller, crypto.getSymbol()).getUnits() - units;
-       double newBuyerAssets = rootRepository.getAssetBySymbol(buyer, crypto.getSymbol()).getUnits() + units;
-
-       rootRepository.updateAssetForSale(newSellerAssetsForSale, crypto.getSymbol(), seller);
-
-       if (!(newSellerTotalAssets == 0)){
-           rootRepository.updateAsset(newSellerTotalAssets, crypto.getSymbol(), seller);
+       if (buyer == accountBank){
+            updateSellerUnitsBankBuyer(seller, crypto, units);
        } else {
-           rootRepository.deleteAsset(crypto.getSymbol(), seller);
+           updateSellerUnits(seller, crypto, units);
        }
-
-       if(rootRepository.getAssetBySymbol(buyer, crypto.getSymbol()) == null){
-           rootRepository.saveAsset(buyer, crypto.getSymbol(), units);
-       } else {
-           rootRepository.updateAsset(newBuyerAssets, crypto.getSymbol(), buyer);
-           if (buyer == accountBank){
-               rootRepository.updateAssetForSale(newBuyerAssets, crypto.getSymbol(), buyer);
-           }
-       }
+       updateBuyerUnits(buyer, crypto, units);
     }
 
-    public void transferBankCosts(int seller, int buyer, double transactionPrice, double bankCostsPercentage){
-        double bankCosts = bankCostsPercentage * transactionPrice;
+    private void updateSellerUnits(int seller, Crypto crypto, double units){
+        double newSellerAssetsForSale = rootRepository.getAssetBySymbol(seller, crypto.getSymbol()).getUnitsForSale() - units;
+        double newSellerTotalAssets = rootRepository.getAssetBySymbol(seller, crypto.getSymbol()).getUnits() - units;
 
-        if (seller == accountBank){ //seller is bank, buyer is client
-            rootRepository.updateBalance(rootRepository.getAccountById(seller).getBalance() + bankCosts, seller);
-            rootRepository.updateBalance(rootRepository.getAccountById(buyer).getBalance() - bankCosts, buyer);
-        } else if (buyer == accountBank){ //seller is client, buyer is bank
-            rootRepository.updateBalance(rootRepository.getAccountById(seller).getBalance() - bankCosts, seller);
-            rootRepository.updateBalance(rootRepository.getAccountById(buyer).getBalance() + bankCosts, buyer);
-        } else { //both seller and buyer are clients
-            double share = bankCosts * HALF;
-            rootRepository.updateBalance(rootRepository.getAccountById(seller).getBalance() - share, seller);
-            rootRepository.updateBalance(rootRepository.getAccountById(buyer).getBalance() - share, buyer);
-            rootRepository.updateBalance(rootRepository.getAccountById(accountBank).getBalance() + bankCosts, accountBank);
+        rootRepository.updateAssetForSale(newSellerAssetsForSale, crypto.getSymbol(), seller);
+
+        if (!(newSellerTotalAssets == 0)){
+            rootRepository.updateAsset(newSellerTotalAssets, crypto.getSymbol(), seller);
+        } else {
+            rootRepository.deleteAsset(crypto.getSymbol(), seller);
         }
     }
 
-    public List<Crypto> getCryptoOverview() {
-        //Get list of all cryptos
-        //Obtain prices minus 1day/1month/3months/year/start
-        //Calculate delta values. Hiervoor is een map in Crypto nodig.
-        List<Crypto> cryptoOverview = rootRepository.getCryptoOverview();
+    private void updateSellerUnitsBankBuyer(int seller, Crypto crypto, double units){
+        double newSellerTotalAssets = rootRepository.getAssetBySymbol(seller, crypto.getSymbol()).getUnits() - units;
+        if (!(newSellerTotalAssets == 0)){
+            rootRepository.updateAsset(newSellerTotalAssets, crypto.getSymbol(), seller);
+        } else {
+            rootRepository.deleteAsset(crypto.getSymbol(), seller);
+        }
+    }
 
-        return cryptoOverview;
+    private void updateBuyerUnits(int buyer, Crypto crypto, double units){
+        if(rootRepository.getAssetBySymbol(buyer, crypto.getSymbol()) == null){
+            rootRepository.saveAsset(buyer, crypto.getSymbol(), units);
+        } else {
+            double newBuyerAssets = rootRepository.getAssetBySymbol(buyer, crypto.getSymbol()).getUnits() + units;
+            rootRepository.updateAsset(newBuyerAssets, crypto.getSymbol(), buyer);
+            if (buyer == accountBank){
+                rootRepository.updateAssetForSale(newBuyerAssets, crypto.getSymbol(), buyer);
+            }
+        }
+    }
+
+    public void transferBankCosts(int seller, int buyer, double bankCosts){
+        double sellerBalance = rootRepository.getAccountById(seller).getBalance();
+        double buyerBalance = rootRepository.getAccountById(buyer).getBalance();
+        double bankBalance = rootRepository.getAccountById(accountBank).getBalance();
+
+        if (seller == accountBank){
+            rootRepository.updateBalance(sellerBalance + bankCosts, seller);
+            rootRepository.updateBalance(buyerBalance - bankCosts, buyer);
+        } else if (buyer == accountBank){
+            rootRepository.updateBalance(sellerBalance - bankCosts, seller);
+            rootRepository.updateBalance(buyerBalance + bankCosts, buyer);
+        } else {
+            double share = bankCosts * HALF;
+            rootRepository.updateBalance(sellerBalance - share, seller);
+            rootRepository.updateBalance(buyerBalance - share, buyer);
+            rootRepository.updateBalance(bankBalance + bankCosts, accountBank);
+        }
+    }
+
+    public List<Transaction> getTransactionsBuyer(int userId){
+        return rootRepository.getTransactionsByUserIdBuyer(userId);
+    }
+
+    public List<Transaction> getTransactionsSeller(int userId){
+        return rootRepository.getTransactionsByUserIdSeller(userId);
+    }
+
+    public Account getAccountByUserId (int userId) {
+        return rootRepository.getAccountByUserId(userId);
     }
 }

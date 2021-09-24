@@ -1,8 +1,8 @@
-package miw.model;
+package com.miw.model;
 
 import java.util.Objects;
 
-public class Crypto implements Comparable<com.miw.model.Crypto>{
+public class Crypto implements Comparable<Crypto>{
 
     private String name;
     private String symbol;
@@ -18,11 +18,9 @@ public class Crypto implements Comparable<com.miw.model.Crypto>{
 
     public Crypto(){}
 
-    private double retrieveValue() {
-        //TODO: get recent value of cryptocoin thru API?
-        return 0.0;
+    public String getDescription() {
+        return description;
     }
-
 
     public String getName() {
         return name;
@@ -32,19 +30,19 @@ public class Crypto implements Comparable<com.miw.model.Crypto>{
         return symbol;
     }
 
-    public double getCryptoPrice() {
-        return cryptoPrice;
+    public void setSymbol(String symbol) {
+        this.symbol = symbol;
     }
 
-    public void setCryptoPrice(double cryptoPrice) {
-        this.cryptoPrice = cryptoPrice;
+    public double getCryptoPrice() {
+        return cryptoPrice;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        com.miw.model.Crypto crypto = (com.miw.model.Crypto) o;
+        Crypto crypto = (Crypto) o;
         return symbol.equals(crypto.symbol);
     }
 
@@ -64,7 +62,7 @@ public class Crypto implements Comparable<com.miw.model.Crypto>{
     }
 
     @Override
-    public int compareTo(com.miw.model.Crypto o) {
+    public int compareTo(Crypto o) {
         return this.name.compareTo(o.getName());
     }
 }

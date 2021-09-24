@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en" class = "no-js">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account</title>
+    <script src="partials/validateClient.js"></script>
+    <link rel="stylesheet" href="partials/sidebar.css">
+    <link rel="stylesheet" href="account.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+        $(function(){
+            $("#sidebar").load("partials/sidebar.html");
+        });
+    </script>
+    <script src="partials/sidebar.js" defer></script>
+    <script src="account.js" defer></script>
+</head>
+
+<body>
+<div id="sidebar"></div>
+<div class="account-body">
+
+    <div class="account-info">
+        <h1 id="account">ACCOUNT</h1>
+        <h3 id="iban">IBAN: </h3>
+        <h3 id="balance">Current balance: $</h3>
+    </div>
+
+    <div id="tables" class="splitscreen">
+        <div class="left">
+            <h3>Assets you've bought:</h3>
+            <div id="buyerTable">
+            <table id="transactionTableBuyer">
+                <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Seller</th>
+                    <th>Purchase</th>
+                    <th>Price</th>
+                    <th>Bank fee</th>
+                </tr>
+                </thead>
+            </table>
+            </div>
+        </div>
+
+        <div class="right">
+            <h3>Assets you've sold:</h3>
+            <div id="sellerTable">
+                <table id="transactionTableSeller">
+                    <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Buyer</th>
+                        <th>Purchase</th>
+                        <th>Price</th>
+                        <th>Bank fee</th>
+                    </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

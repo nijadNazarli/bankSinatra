@@ -1,28 +1,84 @@
 <!DOCTYPE html>
-<html lang="en" class ="no-js">
+<html lang="en" class="no-js">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Marketplace</title>
-    <link rel="stylesheet" href="partials/header.css">
+    <link rel="stylesheet" href="partials/sidebar.css">
+    <link rel="stylesheet" href="marketplace.css">
     <link rel="stylesheet" href="style.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script type="text/javascript" src="https://canvasjs.com/assets/script/jquery-1.11.1.min.js"></script>
+    <script type="text/javascript" src="https://canvasjs.com/assets/script/canvasjs.stock.min.js"></script>
     <script src="partials/validateClient.js"></script>
+    <script src="partials/sidebar.js" defer></script>
     <script src="marketplace.js" defer></script>
     <script>
-        $(function(){
-            $("#header").load("partials/header.html");
+        $(function () {
+            $("#sidebar").load("partials/sidebar.html");
         });
     </script>
 </head>
 
 <body>
-<div id="header"></div>
-<div id="cryptoOverview" class="split left">
+<div id="sidebar"></div>
+
+<table id="cryptoTable"></table>
+<br>
+<label id="deltas"></label>
+
+
+<div id="cryptoDetails" class="split left">
+    <img id="cryptoImg" alt="cryptocoin image">
     <h1 id="cryptoSymbol"></h1>
-    <table id="cryptoTable"></table>
+    <table id="cryptosForSale"></table>
 </div>
 
 <div id="cryptoBuy" class="split right">
+    <h1 id="orderHeader">Order Overview</h1>
+    <br><br>
+
+    <table id="orderForm">
+        <tr>
+            <th>Symbol</th>
+            <th>Units</th>
+            <th>Price per unit</th>
+        </tr>
+        <tr>
+            <td id="cryptoCoinToBuy"></td>
+            <td><input id="unitsToBuy" min="0" type="number"></td>
+            <td id="pricePerUnit"></td>
+        </tr>
+    </table>
+    <br>
+    <h2>Total:</h2>
+    <br>
+    <p id="totalPrice"></p>
+    <button id="purchase">Purchase</button>
+</div>
+
+<div id="cryptoOverlay" class="cryptoOverlay">
+
+    <div class="cryptoOverlay-content">
+        <div class="cryptoOverlay-header">
+            <span class="closeCryptoOverlay">&times;</span>
+            <h2 id="cryptoName">Crypto</h2>
+        </div>
+        <div class="cryptoOverlay-body">
+            <div id="contentFeature"></div>
+            <section id="overlayDetails">
+                <p id="description">Description</p>
+                <p>Description</p>
+                <p>Units owned: </p>
+                <p>Value owned: </p>
+            </section>
+        </div>
+        <div class="cryptoOverlay-footer">
+            <button id="buy">Buy</button>
+        </div>
+    </div>
+
 </div>
 
 </body>

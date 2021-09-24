@@ -1,4 +1,4 @@
-package miw.database;
+package com.miw.database;
 
 import com.miw.model.Administrator;
 import com.miw.model.Client;
@@ -10,10 +10,8 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
 
 @Repository
 public class JdbcUserDao {
@@ -48,6 +46,16 @@ public class JdbcUserDao {
         }
     }
 
+    public String getFirstNameById(int userId){
+        String sql = "SELECT firstName FROM User WHERE userID = ?;";
+        try {
+            return jdbcTemplate.queryForObject(sql, String.class, userId);
+        } catch (EmptyResultDataAccessException e) {
+            logger.info("User does not exist in the databse");
+            return null;
+        }
+    }
+
     public int getIDByEmail(String email) {
         String sql = "SELECT userID FROM User WHERE email= ?;";
         try {
@@ -65,6 +73,16 @@ public class JdbcUserDao {
         } catch (EmptyResultDataAccessException exception) {
             logger.info("The user with such email does not exist in the database");
             return null;
+        }
+    }
+
+    public Boolean checkIfBlockedByID(int userID){
+        String sql = "SELECT isBlocked FROM User WHERE userID = ?;";
+        try {
+            return (jdbcTemplate.queryForObject(sql, Boolean.class, userID =1));
+        } catch (EmptyResultDataAccessException exception) {
+            logger.info("The user with ID" + userID + " does not exist in the database");
+            return true;
         }
     }
 

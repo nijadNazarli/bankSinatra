@@ -1,0 +1,102 @@
+#stylesheet
+
+@font-face {font-family: "Sinatra";
+    src: url("static/fonts/Sinatra.woff") format('woff');
+    font-weight: normal;
+    font-style: oblique;
+}
+@font-face {font-family: "Paradise";
+    src: url("static/fonts/Paradise.woff") format('woff');
+    font-weight: normal;
+    font-style: oblique;
+}
+
+*{
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    text-decoration: none;
+}
+
+
+.header {
+    height: 140px;
+    width: 100%;
+    display: block;
+    background: #002932;
+}
+
+#header {
+    height: 140px;
+    width: 100%;
+    display: block;
+    background: #002932;
+}
+
+.innerHeader {
+    height: 100%;
+    width: 1200px;
+    display: block;
+    margin: 0 auto;
+    background: #002932;
+    color: #BABAD1;
+    font-family: "Sinatra",  "Bookman Old Style", monospace;
+    font-size: 50px;
+    align-content: center;
+    align-items: center;
+    vertical-align: middle;
+}
+
+.logoContainer {
+    height: 100%;
+    display: table;
+    float: left;
+    font-size: 30px;
+}
+
+.logoContainer h1 {
+    color: #BABAD1;
+    height: 100%;
+    display: table-cell;
+    vertical-align: middle;
+    font-family: "Paradise", "Bookman Old Style", monospace;
+    font-weight: 200;
+}
+
+.logoContainer h1 span {
+    font-weight: 800;
+    height: 100%;
+    display: table-cell;
+    vertical-align: middle;
+    font-family: "Paradise", "Bookman Old Style", monospace;
+}
+
+.navigation {
+    float: right;
+    height: 100%;
+    font-size: 20px;
+}
+
+.navigation a {
+    height: 100%;
+    display: table;
+    float: left;
+    padding: 2px 20px;
+}
+
+ul {
+    list-style: none;
+}
+
+.navigation a li {
+    height: 90%;
+    display: table-cell;
+    vertical-align: top;
+    float: left;
+    font-family: "Paradise", "Bookman Old Style", monospace;
+    font-size: large;
+    padding: 0;
+    border: none;
+    background: none;
+    color: lightgray;
+}

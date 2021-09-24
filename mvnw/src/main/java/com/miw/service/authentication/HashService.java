@@ -1,9 +1,6 @@
-package miw.service.authentication;
+package com.miw.service.authentication;
 
 import com.miw.model.User;
-import com.miw.service.authentication.HashHelper;
-import com.miw.service.authentication.PepperService;
-import com.miw.service.authentication.SaltMaker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

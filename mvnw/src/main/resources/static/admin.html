@@ -3,49 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <title>Admin dashboard</title>
-    <link rel="stylesheet" href="partials/header.css">
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="admin.css">
+    <script src="/partials/validateAdmin.js" defer></script>
+    <script src="/partials/sidebar.js" defer></script>
     <script src="/admin.js" defer></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 </head>
 
 <body>
-
 <div class="header">
-    <div class="innerHeader">
-        Welcome to Bank Sinatra!
-        <div class="logoContainer">
-            <h1> <img width="120" height="100" style="object-position: left" alt="BSlogo" src="/images/BSLogo.png" ></h1>
+    <br>Welcome to the admin dashboard.
+</div>
+
+<div class="page">
+    <div class="top left">
+        <form id="findUserForm">
+            Select a user:
+            <input id="email-input" type="email" name="email-input" placeholder="name@mail.org" required>
+            <input id="submitEmail" type="submit" value="Load">
+        </form>
+    </div>
+    <div class="top right">
+        <div id="intro" class="menu">Logged in as: </div><br><br>
+        <button id="logout" class="menu">Log out</button><br><br>
+        <button id="bankFee" class="menu">Change bank fee</button>
+    </div>
+    <div class="left">
+        <div id="userData">
+            <table id="userTable"></table>
         </div>
-        <ul class="navigation">
-            <a><button id="bankfee">Change bank fee</button></a>
-            <a><button id="logout">Log out</button></a>
-        </ul>
+        <br>
+        <button id="toggleBlock">Block/unblock user</button>
+    </div>
+    <div class="right">
+        <div id="portfolioData">
+            <table id="assetTable"></table><br><br>
+            <button id="submitChanges">Submit changes</button><br><br>
+            To add assets (various symbols) or account balance (symbol: USD), insert a positive value (e.g. 0.25).<br>
+            To remove assets or account balance, insert a negative value (e.g. -0.25).<br>
+            To apply the changes, click "Submit changes". If changes are not visible, reload the user.
+        </div>
     </div>
 </div>
 
 <div id="overlay">
-    <form id="feeForm">
+    <form id="feeForm" class="overlayForm">
         <h1>Change bank fee</h1>
-        <img id="close-overlay-btn" src="images/close_btn.png" alt="close-btn"><br>
+        <span id="close-overlay-btn">&times;</span>
         <p>Specify the bank fee here (e.g. 0.01 for 1%):</p><br>
         <input id="fee-input" type="number" name="fee-input" min="0" max="1" step ="0.01" placeholder="0.01" required><br><br>
         <input id="submitFee" type="submit" value="Submit">
     </form>
-</div>
-
-<div class="page">
-    <div class="column">
-        <form id="findUserForm">
-            Select a user:
-            <input id="email-input" type="email" name="email-input" placeholder="name@mail.org" required><br>
-            <input id="submitEmail" type="submit" value="Submit">
-        </form>
-        <br><br>
-        <div id="userData" class="split left">
-            <table id="userTable"></table>
-        </div>
-    </div>
 </div>
 </body>
 </html>

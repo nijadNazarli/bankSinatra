@@ -1,0 +1,224 @@
+#stylesheet
+
+@font-face {font-family: "Sinatra";
+    src: url("fonts/Sinatra.woff") format('woff');
+    font-weight: normal;
+    font-style: oblique;
+}
+@font-face {font-family: "Paradise";
+    src: url("fonts/Paradise.woff") format('woff');
+    font-weight: normal;
+    font-style: oblique;
+}
+
+.no-js {
+    display: none !important
+}
+
+.sidebar{
+    height: 100%;
+    width: 200px;
+    position: fixed;
+    left: 0;
+    top: 0;
+    padding-top: 40px;
+    background-color: #012128ff;
+    font-family: "Palatino Linotype", monospace;
+    color: #f5e8ccff;
+}
+
+.logoContainer{
+    text-align: center;
+}
+
+#bank{
+    margin-top: 20%;
+    font-size: 50px;
+    text-align: center;
+    font-family: "Sinatra", "Palatino Linotype", monospace;
+    color: #c48f08ff;
+}
+
+#slogan{
+    margin-top: 20%;
+    font-size: 30px;
+    font-style: italic;
+    text-align: center;
+    font-family: "Paradise", "Palatino Linotype", monospace
+}
+
+#loginForm{
+    text-align: center;
+    margin: auto;
+    padding-top: 110%;
+}
+
+#email, #password{
+    text-align: center;
+    font-family: "Palatino Linotype", monospace;
+    background-color: #f5e8ccff;
+    color: #012128ff;
+}
+
+#btnLogin{
+    background-color: #517b75ff;
+    font-family: "Palatino Linotype", monospace;
+    color: #012128ff;
+    border-radius: 8px;
+    width: 50%;
+    margin-top: 10px;
+}
+
+body{
+    background-image: url("/images/man-plane.jpg");
+    background-size: cover;
+}
+
+.index-body{
+    margin-left: 200px;
+}
+
+#regBox{
+    position: absolute;
+    height: 60%;
+    width: 50%;
+    left: 30%;
+    top: 20%;
+    background: rgba(1, 33, 40, 0.8);
+    text-align: center;
+}
+
+#regBox h1{
+    font-family: "Sinatra", "Palatino Linotype", monospace;
+    color: #c48f08ff;
+    font-style: italic;
+    font-size: 70px;
+}
+
+#regBox h2{
+    font-family: "Sinatra", "Palatino Linotype", monospace;
+    font-size: 20px;
+    color: #f5e8ccff;
+    text-transform: uppercase;
+    margin-top: 5%;
+}
+
+#chooseUs{
+    font-family: "Sinatra", "Palatino Linotype", monospace;
+    margin-left: 15%;
+    margin-right: 15%;
+    font-size: 18px;
+    color: #f5e8ccff;
+    text-align: justify;
+}
+
+#btnRegister{
+    background-color: #c48f08ff;
+    font-family: "Palatino Linotype", monospace;
+    color: #012128ff;
+    border-radius: 8px;
+    width: 30%;
+    margin-top: 5%;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+#client{
+    display: none;
+}
+
+#admin{
+    background-color: transparent;
+    background-repeat: no-repeat;
+    border: none;
+    cursor: pointer;
+    overflow: hidden;
+    outline: none;
+    font-family: "Palatino Linotype", monospace;
+    color: #517b75ff;
+    text-decoration: underline;
+}
+
+#overlay{
+    position: fixed;
+    display: none;
+    width: 100%;
+    height: 100%;
+    top:0;
+    left:0;
+    right:0;
+    bottom:0;
+    background-color: rgba(0,0,0,0.7);
+    z-index: 2;
+    cursor: pointer;
+}
+
+.overlayForm{
+    background-color: #012128ff;
+    position: absolute;
+    height: 60%;
+    width: 50%;
+    left: 30%;
+    top: 20%;
+    padding-left: 15px;
+    padding-bottom: 10px;
+    padding-right: 10px;
+}
+
+#registerLabel{
+    text-align: center;
+    font-family: "Palatino Linotype", monospace;
+    color: #c48f08ff;
+}
+
+.overlayForm p{
+    text-align: center;
+    font-family: "Palatino Linotype", monospace;
+    color: #f5e8ccff;
+}
+
+.overlayForm input{
+    background-color: #f5e8ccff;
+    font-family: "Palatino Linotype", monospace;
+    color: #012128ff;
+}
+
+#submitReg{
+    background-color: #c48f08ff;
+    font-family: "Palatino Linotype", monospace;
+    font-size: 20px;
+    color: #012128ff;
+    border-radius: 8px;
+    width: 30%;
+    margin: 0 auto;
+    font-weight: bold;
+    display: block;
+}
+
+#close-overlay-btn  {
+    color: #c48f08ff;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+#close-overlay-btn :hover,
+#close-overlay-btn :focus {
+    color: #000;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+::-webkit-scrollbar{
+    width: 12px;
+}
+
+::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5);
+}

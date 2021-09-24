@@ -1,22 +1,77 @@
 <!DOCTYPE html>
-<html lang="en" class ="no-js">
+<html lang="en" class="no-js">
+
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portfolio</title>
-    <link rel="stylesheet" href="partials/header.css">
+     <script src="partials/validateClient.js"></script>
+    <link rel="stylesheet" href="partials/sidebar.css">
+    <link rel="stylesheet" href="portfolio.css">
     <link rel="stylesheet" href="style.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="partials/validateClient.js"></script>
-    <script src="portfolio.js" defer></script>
+    <script type="text/javascript" src="https://canvasjs.com/assets/script/jquery-1.11.1.min.js"></script>
+    <script type="text/javascript" src="https://canvasjs.com/assets/script/canvasjs.stock.min.js"></script>
+   <script src="partials/sidebar.js" defer></script>
+   <script src="portfolio.js" defer></script>
     <script>
-        $(function(){
-            $("#header").load("partials/header.html");
+        $(function () {
+            $("#sidebar").load("partials/sidebar.html");
         });
     </script>
 </head>
 
 <body>
-<div id="header"></div>
+<nav id="sidebar"></nav>
+<div id="portfolio-body">
 
+    <br>
+    <section id="portfolio-info">
+        <h1>Portfolio</h1>
+        <p>Total fiat balance: <span id="totalBalance"></span></p>
+        <p>Total portfolio value: <span id="totalPortfolioValue"></span></p>
+    </section>
+    <br><br>
+    <table id="assetTable"></table>
+
+    <div id="cryptoOverlay" class="cryptoOverlay">
+        <div class="cryptoOverlay-content">
+            <div class="cryptoOverlay-header">
+                <span class="closeCryptoOverlay">&times;</span>
+                <h2 id="cryptoName">Overlay header</h2>
+            </div>
+            <div class="cryptoOverlay-body">
+                <div id="contentFeature"></div>
+                <section id="overlayDetails">
+                    <p id="description">Description</p>
+                    <p>Units owned: </p>
+                    <p>Value owned: </p>
+
+                </section>
+
+            </div>
+            <div class="cryptoOverlay-footer">
+                <button id="buy">Buy</button>
+                <button id="sell">Sell to Bank</button>
+                <button id="market">Market</button>
+            </div>
+        </div>
+    </div>
+
+<!--<br><br>-->
+<!--    <div class="buttonContainer">-->
+<!--        <div class="center">-->
+<!--            <button class="btn">-->
+<!--                <svg width="180px" height="60px" viewBox="0 0 180 60" class="border">-->
+<!--                    <polyline points="179,1 179,59 1,59 1,1 179,1" class="bg-line" />-->
+<!--                    <polyline points="179,1 179,59 1,59 1,1 179,1" class="hl-line" />-->
+<!--                </svg>-->
+<!--                <span>HOVER ME</span>-->
+<!--            </button>-->
+<!--        </div>-->
+<!--    </div>-->
+
+</div>
 </body>
+
 </html>

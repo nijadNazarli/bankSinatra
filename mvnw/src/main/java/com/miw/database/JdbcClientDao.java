@@ -1,5 +1,5 @@
-package miw.database;
-import com.miw.database.ClientDao;
+package com.miw.database;
+
 import com.miw.model.Address;
 import com.miw.model.Client;
 import org.slf4j.Logger;
@@ -11,14 +11,13 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
-
 import java.sql.*;
 import java.time.LocalDate;
 
 @Repository
 public class JdbcClientDao implements ClientDao {
 
-  private final Logger logger = LoggerFactory.getLogger(com.miw.database.JdbcClientDao.class);
+  private final Logger logger = LoggerFactory.getLogger(JdbcClientDao.class);
 
   private JdbcTemplate jdbcTemplate;
 
@@ -76,6 +75,17 @@ public class JdbcClientDao implements ClientDao {
     String sql = "SELECT * FROM `User` WHERE bsn = ?";
     try{
       return jdbcTemplate.queryForObject(sql, new ClientRowMapper(), bsn);
+    }catch (EmptyResultDataAccessException e) {
+      logger.info("User does not exist in the database");
+      return null;
+    }
+  }
+
+  @Override
+  public Client findByAccountId(int accountId){
+    String sql = "SELECT * FROM User u JOIN Account a ON u.userID = a.userID WHERE accountID = ?;";
+    try {
+      return jdbcTemplate.queryForObject(sql, new ClientRowMapper(), accountId);
     }catch (EmptyResultDataAccessException e) {
       logger.info("User does not exist in the database");
       return null;

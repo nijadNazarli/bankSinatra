@@ -1,4 +1,4 @@
-package miw.service.authentication;
+package com.miw.service.authentication;
 
 public class ByteArrayToHexHelper {
 

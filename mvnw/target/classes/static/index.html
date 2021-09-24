@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Bank Sinatra</title>
+    <script src="/scripts.js" defer></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+<form id="loginForm" class="split right">
+    <h1 id="loginLabel" >Login</h1>
+    <button id="admin">Admin</button>
+    <button id="client">Client</button><br><br>
+    <label for="email"> Username: </label>
+    <input id="email" type="email" name="email" required><br><br>
+    <label for="password"> Password: </label>
+    <input id="password" type="password" name="password" required minlength="8" maxlength="64"> <br><br>
+    <input type="submit" id="btnLogin" value="Submit">
+    <button id="btnRegister">Register</button>
+</form>
+
+<div id="overlay">
+    <form id="registerFields">
+        <h1 id="registerLabel">Register</h1>
+        <img id="close-overlay-btn" src="images/close_btn.png" alt="close-btn"><br>
+        <p>Register as a new customer at Bank Sinatra</p><br>
+        <input id="email-reg" type="email" name="email-reg" placeholder="Email" required>
+        <input id="password-reg" type="password" name="password-reg" placeholder="Password" required minlength="8" maxlength="64" ><br><br>
+        <input id="firstName" type="text" name="firstName-reg" placeholder="Firstname" required>
+        <input id="prefix" type="text" name="prefix-reg" placeholder="prefix">
+        <input id="lastName" type="text" name="lastName-reg" placeholder="Lastname" required ><br><br>
+        <input id="dob" type="date" value="2000-01-01">
+        <input min="0" minlength="8" maxlength="9" id="bsn" type="number" name="bsn-reg" placeholder="BSN" required><br><br>
+        <input id="city" type="text" placeholder="City" name="city-reg" required pattern="^([a-zA-Z\u0080-\u024F]+(?:. |-| |'))*[a-zA-Z\u0080-\u024F]*$">
+        <input id="zipcode" type="text" name="zipcode-reg" placeholder="Zipcode" required pattern="^[1-9][0-9]{3} ?(?!sa|sd|ss|SA|SD|SS)[A-Za-z]{2}$"><br><br>
+        <input id="street" type="text" name="street-reg" placeholder="Street" required pattern="^([a-zA-Z\u0080-\u024F]+(?:. |-| |'))*[a-zA-Z0-9\u0080-\u024F]*$">
+        <input id="houseNumber" type="number" name="housenumber-reg" placeholder="House number" required>
+        <input id="hNrE" type="text" name="extension-reg" placeholder="extension" pattern="[a-zA-Z]*[0-9]*-?/?[a-zA-Z]*[0-9]*"><br><br>
+        <input id="submitReg" type="submit" value="Submit">
+    </form>
+</div>
+
+<div id="slogan" class="split left">
+    <h1 class="h1">Marketingpraatje</h1>
+    According to all known laws of aviation, there is no way a bee should be able to fly. Its wings are too small to get its fat little body off the ground. The bee, of course, flies anyway because bees don't care what humans think is impossible.
+</div>
+
+
+</body>
+
+</html>

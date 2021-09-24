@@ -3,7 +3,7 @@
  * @Description This class obtains and calculates the client's portfolio with all assets ever owned,
  * including the current, historical and delta values. The portfolio is returned to the PortfolioController.
  */
-package miw.service;
+package com.miw.service;
 
 import com.miw.database.JdbcCryptoDao;
 import com.miw.database.RootRepository;
@@ -11,12 +11,8 @@ import com.miw.model.Asset;
 import com.miw.model.Client;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 @Service
 public class PortfolioService {
@@ -33,6 +29,25 @@ public class PortfolioService {
 
     public Client findClientByEmail(String email) {
         return rootRepository.findClientByEmail(email);
+    }
+
+    public int getAccountIdByUserId(int userId) {
+        return rootRepository.getAccountByUserId(userId).getAccountId();
+    }
+
+    public double getTotalPortfolioValue(int accountId) {
+        List<Asset> assetList = rootRepository.getAssets(accountId);
+        double totalPortfolioValue = 0.0;
+        for (Asset asset : assetList) {
+            totalPortfolioValue += asset.getCurrentValue();
+        }
+        return totalPortfolioValue;
+    }
+
+    public List<Asset> getAssets(int accountId) {
+        List<Asset> assetList = rootRepository.getAssets(accountId);
+        assetList.sort(new Asset.CurrentValueComparator()); //Sorteer assets van groot naar klein o.b.v. asset's currentValue
+        return assetList;
     }
 
     /**
@@ -142,5 +157,9 @@ public class PortfolioService {
         } else {
             return deltaValuePct;
         }
+    }
+
+    public double getAssetDeltaPct(int accountId, String symbol, LocalDateTime dateTime) {
+        return rootRepository.getAssetDeltaPct(accountId, symbol, dateTime);
     }
 }

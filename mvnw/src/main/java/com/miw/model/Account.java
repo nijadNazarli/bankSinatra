@@ -1,8 +1,7 @@
-package miw.model;
+package com.miw.model;
 
 import org.iban4j.CountryCode;
 import org.iban4j.Iban;
-
 import java.util.Objects;
 
 public class Account {
@@ -64,7 +63,7 @@ public class Account {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        com.miw.model.Account account = (com.miw.model.Account) o;
+        Account account = (Account) o;
         return accountId == account.accountId;
     }
 

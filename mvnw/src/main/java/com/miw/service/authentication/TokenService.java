@@ -1,13 +1,12 @@
-package miw.service.authentication;
+package com.miw.service.authentication;
 
 import com.miw.database.JdbcTokenDao;
-import com.miw.service.authentication.PepperService;
+import com.miw.database.JdbcUserDao;
 import io.jsonwebtoken.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import javax.crypto.spec.SecretKeySpec;
 import javax.xml.bind.DatatypeConverter;
 import java.security.Key;
@@ -16,15 +15,16 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-
 @Service
 public class TokenService {
     private JdbcTokenDao jdbcTokenDao;
-    private static final Logger logger = LoggerFactory.getLogger(com.miw.service.authentication.TokenService.class);
+    private static JdbcUserDao jdbcUserDao;
+    private static final Logger logger = LoggerFactory.getLogger(TokenService.class);
 
     @Autowired
-    public TokenService(JdbcTokenDao jdbcTokenDao) {
+    public TokenService(JdbcTokenDao jdbcTokenDao, JdbcUserDao jdbcUserDao) {
         this.jdbcTokenDao = jdbcTokenDao;
+        this.jdbcUserDao = jdbcUserDao;
         logger.info("New Tokenservice created.");
 
     }
@@ -67,6 +67,10 @@ public class TokenService {
     }
 
     public static boolean validateJWT(String jwt) {
+        int userID = Integer.valueOf(decodeJWT(jwt).getSubject());
+        if (jdbcUserDao.checkIfBlockedByID(userID)){
+            return false;
+        }
         try {
             decodeJWT(jwt);
         } catch (ExpiredJwtException expired) {
@@ -78,6 +82,7 @@ public class TokenService {
 
     // Will return userID if JWT is valid.
     public static int getValidUserID(String jwt) {
+        int userID = Integer.valueOf(decodeJWT(jwt).getSubject());
         try {
             return Integer.valueOf(decodeJWT(jwt).getSubject());
         } catch (ExpiredJwtException expired) {
@@ -96,8 +101,12 @@ public class TokenService {
     }
 
     public static boolean validateAdmin(String jwt) {
+        int userID = Integer.valueOf(decodeJWT(jwt).getSubject());
+        if (jdbcUserDao.checkIfBlockedByID(userID)){
+            return false;
+        }
         try {
-            return com.miw.service.authentication.TokenService.getRole(jwt).equals("admin");
+            return TokenService.getRole(jwt).equals("admin");
         } catch (ExpiredJwtException invalid) {
             logger.info("Either you are no admin or your token is expired and you need to log in");
             return false;
@@ -105,21 +114,15 @@ public class TokenService {
     }
 
     public static boolean validateClient(String jwt) {
+        int userID = Integer.valueOf(decodeJWT(jwt).getSubject());
+        if (jdbcUserDao.checkIfBlockedByID(userID)){
+            return false;
+        }
         try {
-            return com.miw.service.authentication.TokenService.getRole(jwt).equals("client");
+            return TokenService.getRole(jwt).equals("client");
         } catch (ExpiredJwtException invalid) {
             logger.info("Either you are no client or your token is expired and you need to log in");
             return false;
         }
     }
-
-    //TODO: implement refreshtoken?
-    public String generateRefreshToken() {
-        return UUID.randomUUID().toString();
-    }
-
-    public boolean validateRefreshToken(String token) {
-        return jdbcTokenDao.retrieveToken(token) != null;
-    }
-
 } // end of main

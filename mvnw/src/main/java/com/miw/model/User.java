@@ -1,16 +1,13 @@
-package miw.model;
+package com.miw.model;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.Size;
+import javax.validation.constraints.*;
 import java.util.Objects;
 
 public abstract class User {
 
-    private final Logger logger = LoggerFactory.getLogger(com.miw.model.User.class);
+    private final Logger logger = LoggerFactory.getLogger(User.class);
 
     protected int userId;
 
@@ -130,7 +127,7 @@ public abstract class User {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        com.miw.model.User user = (com.miw.model.User) o;
+        User user = (User) o;
         return userId == user.userId && email.equals(user.email);
     }
 

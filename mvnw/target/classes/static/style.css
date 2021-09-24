@@ -1,0 +1,151 @@
+#stylesheet
+
+@font-face {font-family: "Sinatra";
+    src: url("fonts/Sinatra.woff") format('woff');
+    font-weight: normal;
+    font-style: oblique;
+}
+@font-face {font-family: "Paradise";
+    src: url("fonts/Paradise.woff") format('woff');
+    font-weight: normal;
+    font-style: oblique;
+}
+
+*{
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    text-decoration: none;
+}
+
+.no-js {
+    display: none !important
+}
+
+.page {
+    height: 100%;
+    width: 1200px;
+    top: 120px;
+    display: block;
+    margin-left: 50px;
+    color: #001d23;
+    font-family: "Bookman Old Style", monospace;
+    font-size: 30px;
+    align-content: center;
+    align-items: center;
+    vertical-align: middle;
+}
+
+body {
+    background: lightgray;
+}
+.text {
+    font-family: "Paradise", monospace;
+    color: lightgray;
+    margin:0;
+    padding: 0;
+}
+
+.button {
+    font-family: "Sinatra", "Bookman Old Style", monospace;
+    font-size: 10px;
+    background-color: lightgray;
+    outline: black;
+    color: ghostwhite;
+    border: solid 2px black;
+    border-radius: 10px;
+    padding: 10px 20px 10px 20px;
+    margin: 5px;
+    width: 1200px;
+}
+
+#overlay{
+    position: fixed;
+    display: none;
+    width: 100%;
+    height: 100%;
+    top:0;
+    left:0;
+    right:0;
+    bottom:0;
+    background-color: rgba(0,0,0,0.7);
+    z-index: 2;
+    cursor: pointer;
+}
+
+#registerFields{
+    padding-left: 15px;
+    position: relative;
+    top: 50%;
+    left: 50%;
+    height: 35%;
+    width: 40%;
+    background-color: whitesmoke;
+    color: darkslategray;
+    border-color: darkslategray;
+    border-style: solid;
+    border-radius: 5px;
+    box-shadow: rgba(0, 0, 0, 0.1) 0 4px 12px;
+    transform: translate(-50%, -50%);
+    -ms-transform: translate(-50%, -50%);
+}
+
+#submitReg{
+    height: 20px;
+    width: 70px;
+    margin-left: 45%;
+}
+
+.split {
+    height: 100%;
+    width: 50%;
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    overflow-x: hidden;
+    padding-top: 20px;
+}
+
+.left {
+    right: 45%;
+    top: 40%;
+}
+
+.right {
+    left: 60%;
+    top: 40%;
+}
+
+#registerLabel, #loginLabel{
+    display: inline;
+}
+
+#close-overlay-btn {
+    height: 6%;
+    width: 4%;
+    position: relative;
+    left: 420px;
+}
+
+#cryptoTable {
+    font-family: Arial, Helvetica, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+#cryptoTable td, #cryptoTable th {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+#cryptoTable tr:nth-child(even){background-color: #f2f2f2;}
+
+#cryptoTable tr:hover {background-color: #ddd;}
+
+#cryptoTable th {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    text-align: left;
+    background-color: #001d23;
+    color: white;
+}

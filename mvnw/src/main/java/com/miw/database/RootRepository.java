@@ -3,23 +3,21 @@
  * Deze class is de Repository welke diverse DAO's aanroept om
  * informatie uit de database te verkrijgen en te combineren.
  */
-package miw.database;
+package com.miw.database;
 
-import com.miw.database.ClientDao;
-import com.miw.database.JdbcAccountDao;
 import com.miw.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @Repository
 public class RootRepository {
 
-    private final Logger logger = LoggerFactory.getLogger(com.miw.database.RootRepository.class);
+    private final Logger logger = LoggerFactory.getLogger(RootRepository.class);
     private ClientDao clientDAO;
     private JdbcAccountDao jdbcAccountDao; // TODO: interface aanroepen ipv jdbcAccountDAO zelf
     private JdbcAdminDao jdbcAdminDao; // TODO: interface aanroepen ipv jdbcAdminDao zelf
@@ -86,7 +84,9 @@ public class RootRepository {
         return jdbcAccountDao.getAccountByID(accountId);
     }
 
-    public Account getAccountByUserId(int userId) { return jdbcAccountDao.getAccountByUserID(userId);}
+    public Account getAccountByUserId(int userId) {
+        return jdbcAccountDao.getAccountByUserID(userId);
+    }
 
     public Account getAccountByEmail(String email){
         return jdbcAccountDao.getAccountByEmail(email);
@@ -101,8 +101,7 @@ public class RootRepository {
     }
 
     public List<Asset> getAssets(int accountId) {
-        List<Asset> assets = jdbcAssetDao.getAssets(accountId);
-        return assets;
+        return jdbcAssetDao.getAssets(accountId);
     }
 
     public Asset getAssetBySymbol(int accountId, String symbol){
@@ -157,9 +156,16 @@ public class RootRepository {
         jdbcAssetDao.deleteAsset(symbol, seller);
     }
 
-
     public List<Crypto> getCryptoOverview() {
         return jdbcCryptoDao.getAllCryptos();
+    }
+
+    public List<Transaction> getTransactionsByUserIdSeller(int userId){
+        return jdbcTransactionDao.getTransactionsByUserIdSeller(userId);
+    }
+
+    public List<Transaction> getTransactionsByUserIdBuyer(int userId){
+        return jdbcTransactionDao.getTransactionsByUserIdBuyer(userId);
     }
 
     public int getUserIDbyEmail(String email) {
@@ -170,8 +176,20 @@ public class RootRepository {
         return jdbcUserDao.getRoleByEmail(email);
     }
 
+    public String getFirstNameById(int userId) { return jdbcUserDao.getFirstNameById(userId);}
+
     public User getUserByEmail(String email) {
         return jdbcUserDao.getUserByEmail(email);
+    }
+
+    public Client findByAccountId(int accountId){ return clientDAO.findByAccountId(accountId);}
+
+    public void toggleBlock(boolean blockUnblock, int id) {
+        jdbcUserDao.toggleBlock(blockUnblock, id);
+    }
+
+    public double getBalanceByEmail(String email) {
+        return jdbcAccountDao.getBalanceByEmail(email);
     }
 
     public void marketAsset(double unitsForSale, double salePrice, String symbol, int accountId) {
@@ -180,5 +198,29 @@ public class RootRepository {
 
     public void saveCryptoPriceBySymbol(String symbol, double price, LocalDateTime time) {
         jdbcCryptoDao.saveCryptoPriceBySymbol(symbol, price, time);
+    }
+
+    public Map<String, Double> getPriceDeltas(LocalDateTime dateTime) {
+        return jdbcCryptoDao.getPriceDeltas(dateTime);
+    }
+
+    public void updateBankCosts(double fee) {
+        jdbcTransactionDao.updateBankCosts(fee);
+    }
+
+    public List<Crypto> getAllCryptos() {
+        return jdbcCryptoDao.getAllCryptos();
+    }
+
+    public LocalDateTime getLatestAPICallTime() {
+        return jdbcCryptoDao.getLatestAPICallTime();
+    }
+
+    public Map<Double, Double> getUnitsForSaleWithPrice (String symbol, int accountId) {
+        return jdbcAssetDao.getUnitsForSaleAndPrice(symbol, accountId);
+    }
+
+    public double getAssetDeltaPct(int accountId, String symbol, LocalDateTime dateTime) {
+        return jdbcAssetDao.getAssetDeltaPct(accountId, symbol, dateTime);
     }
 }

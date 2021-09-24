@@ -1,37 +1,43 @@
-package miw.service;
+package com.miw.service;
 
-import com.miw.database.JdbcAssetDao;
-import com.miw.database.JdbcCryptoDao;
 import com.miw.database.JdbcTransactionDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import java.time.LocalDate;
+import java.util.*;
 
 @Service
 public class StatisticsService {
-    private final JdbcAssetDao jdbcAssetDao;
+
+    private final PortfolioService portfolioService;
     private final JdbcTransactionDao jdbcTransactionDao;
-    private final JdbcCryptoDao jdbcCryptoDao;
+
 
     @Autowired
-    public StatisticsService(JdbcAssetDao jdbcAssetDao, JdbcTransactionDao jdbcTransactionDao, JdbcCryptoDao jdbcCryptoDao) {
-        this.jdbcAssetDao = jdbcAssetDao;
+    public StatisticsService(JdbcTransactionDao jdbcTransactionDao, PortfolioService portfolioService) {
         this.jdbcTransactionDao = jdbcTransactionDao;
-        this.jdbcCryptoDao = jdbcCryptoDao;
+        this.portfolioService = portfolioService;
+
     }
 
-    // TODO: Method to get list of crypto values with certain interval (base case: each day of the last week):
-    // DAO Method can imeadiatly be integrated in endpoint?
 
-    // TODO: Method to get list of total portfolio value with certain interval (base case: each day of the last week):
-            // getBuyerTransactions op basis van betrefende datum en cryptosymbol
-        //            jdbcTransactionDao.getAssetsUntill(date);
-            // getTransactionsAsSeller op basis van betrefende datum
-        //            jdbcTransactionDao.getTransactionsSellerUntillDate(date);
-            // double totaalPortfolioWaarde;
-            // foreach loop
-            // ga transactie na, per transactie
-            // haal koerswaarde op van cryptosymbol op datum x. vermenigvuldig aandeel keer koerswaarde
-            // totaalportfoliowaarde =+ deze koerswaarde
-            // cryptoStats.add totaalportfoliowaarde
+    public Map<LocalDate, Double> getPortfolioStats(int userID, int daysBack) {
+        Map<LocalDate, Double> portfolioValues = new TreeMap<>();
 
+        //iterate through days to get cumulative values
+        for (int days = daysBack; days >= 0; days--) {
+            double portfolioValue = jdbcTransactionDao.getPortfolioValueByDate(userID, days);
+            LocalDate date = LocalDate.now().minusDays(days);
+            portfolioValues.put(date,portfolioValue);
+        }
+        return portfolioValues;
+    }
+
+    public double getPercentageIncrease(int userID, int daysBack){
+        double pastVal = jdbcTransactionDao.getPortfolioValueByDate(userID, daysBack);
+        double currentVal = portfolioService.getTotalPortfolioValue(userID);
+        return ((currentVal/pastVal)*100)-100;
+    }
+
+    //TODO: portfolio waarde tenopzichte van vorige dag/week/maand
 }

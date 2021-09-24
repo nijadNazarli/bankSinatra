@@ -1,11 +1,6 @@
-package miw.model;
+package com.miw.model;
 
-import com.miw.model.Account;
-import com.miw.model.Address;
-import com.miw.model.Crypto;
-import com.miw.model.User;
 import com.miw.service.authentication.ElevenCheck;
-
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Past;

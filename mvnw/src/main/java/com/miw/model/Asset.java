@@ -1,14 +1,12 @@
-package miw.model;
+package com.miw.model;
 
-import com.miw.model.Account;
-import com.miw.model.Crypto;
-
+import java.util.Comparator;
 import java.util.Map;
 import java.util.TreeMap;
 
 public class Asset {
 
-    private Account account;
+    private int accountId;
     public Crypto crypto;
     private double units;
     private double currentValue;
@@ -41,13 +39,12 @@ public class Asset {
         return units * crypto.getCryptoPrice();
     }
 
-
-    public void setAccount(Account account) {
-        this.account = account;
+    public int getAccountId() {
+        return accountId;
     }
 
-    public Account getAccount() {
-        return account;
+    public void setAccountId(int accountId) {
+        this.accountId = accountId;
     }
 
     public Crypto getCrypto() {
@@ -70,54 +67,30 @@ public class Asset {
         return currentValue;
     }
 
-    public void setCurrentValue(double currentValue) {
-        this.currentValue = currentValue;
-    }
-
     public Map<String, Double> getHistoricalValues() {
         return historicalValues;
-    }
-
-    public void setHistoricalValues(Map<String, Double> historicalValues) {
-        this.historicalValues = historicalValues;
     }
 
     public Map<String, Double> getHistoricalNrOfUnits() {
         return historicalNrOfUnits;
     }
 
-    public void setHistoricalNrOfUnits(Map<String, Double> historicalNrOfUnits) {
-        this.historicalNrOfUnits = historicalNrOfUnits;
-    }
-
     public Map<String, Double> getDeltaValues() {
         return deltaValues;
-    }
-
-    public void setDeltaValues(Map<String, Double> deltaValues) {
-        this.deltaValues = deltaValues;
     }
 
     public double getUnitsForSale() {
         return unitsForSale;
     }
 
-    public void setUnitsForSale(double unitsForSale) {
-        this.unitsForSale = unitsForSale;
-    }
-
     public double getSalePrice() {
         return salePrice;
-    }
-
-    public void setSalePrice(double salePrice) {
-        this.salePrice = salePrice;
     }
 
     @Override
     public String toString() {
         return "Asset{" +
-                "account=" + account +
+                "accountId=" + accountId +
                 ", crypto=" + crypto +
                 ", units=" + units +
                 ", currentValue=" + currentValue +
@@ -125,4 +98,14 @@ public class Asset {
                 ", salePrice=" + salePrice +
                 '}';
     }
+
+
+    public static class CurrentValueComparator implements Comparator<Asset> {
+        //Sorteren op assetwaarde van groot naar klein
+        @Override
+        public int compare(Asset o1, Asset o2) {
+            return (int) (o2.getCurrentValue() - o1.getCurrentValue());
+        }
+    }
+
 }

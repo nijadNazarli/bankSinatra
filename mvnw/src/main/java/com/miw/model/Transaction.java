@@ -1,6 +1,4 @@
-package miw.model;
-import com.miw.model.Crypto;
-
+package com.miw.model;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
@@ -104,7 +102,7 @@ public class Transaction {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        com.miw.model.Transaction that = (com.miw.model.Transaction) o;
+        Transaction that = (Transaction) o;
         return transactionId == that.transactionId;
     }
 

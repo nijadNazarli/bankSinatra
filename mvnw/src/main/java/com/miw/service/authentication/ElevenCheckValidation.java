@@ -1,6 +1,4 @@
-package miw.service.authentication;
-
-import com.miw.service.authentication.ElevenCheck;
+package com.miw.service.authentication;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;

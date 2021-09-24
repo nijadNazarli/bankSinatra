@@ -1,0 +1,159 @@
+body:not(#sidebar){
+    margin-left: 200px;
+}
+
+#cryptosForSale {
+    display: none;
+}
+#cryptoBuy {
+    display: none;
+}
+
+.cryptoLogo {
+    width: 24px;
+    height: 24px;
+    border-radius: 12px;
+    margin-right: 5px;
+}
+
+#cryptosForSale, #cryptoTable, #orderForm {
+    font-family: Arial, Helvetica, sans-serif;
+    border-collapse: collapse;
+    width: 80%;
+    background-color: #f5e8ccff;
+    border-radius: 10px;
+}
+
+#cryptosForSale td, #cryptosForSale th, #cryptoTable, th, td, #orderForm tbody{
+    /*border: 1px solid #ddd;*/
+    padding: 8px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#cryptoSymbol {
+    color: #f5e8ccff;
+}
+
+#cryptosForSale tr:nth-child(even){background-color: lightcyan;}
+
+/*#cryptoTable tr:nth-child(even){background-color: lightcyan;}*/
+
+#orderForm tr:nth-child(even){background-color: lightcyan;}
+
+#cryptosForSale tr:nth-child(even):hover{background-color: teal;}
+
+#orderForm tr:nth-child(even):hover{background-color: teal;}
+
+#cryptoTable tr:hover{background-color: teal;}
+
+#cryptosForSale tr:hover {background-color: #ddd;}
+
+#cryptosForSale th, #cryptoTable th, #orderForm th{
+    padding-top: 12px;
+    padding-bottom: 12px;
+    text-align: left;
+    background-color: teal;
+    color: white;
+}
+
+tr:hover{
+    background-color: teal;
+}
+
+.cryptoOverlay {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    padding-top: 100px;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgb(0,0,0);
+    background-color: rgba(0,0,0,0.4);
+}
+
+.cryptoOverlay-content {
+    position: relative;
+    background-color: #fefefe;
+    margin: auto;
+    padding: 10px 15px 10px 0px;
+    border: 1px solid #888;
+    width: 50%;
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
+    text-align: center;
+    -webkit-animation-name: animatetop;
+    -webkit-animation-duration: 0.4s;
+    animation-name: animatetop;
+    animation-duration: 0.4s
+}
+
+@-webkit-keyframes animatetop {
+    from {top:-300px; opacity:0}
+    to {top:0; opacity:1}
+}
+
+@keyframes animatetop {
+    from {top:-300px; opacity:0}
+    to {top:0; opacity:1}
+}
+
+.closeCryptoOverlay {
+    color: white;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.closeCryptoOverlay:hover,
+.closeCryptoOverlay:focus {
+    color: #000;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.cryptoOverlay-header {
+    height: 30px;
+    padding: 2px 16px;
+    background-color: #001d23;
+    color: white;
+}
+
+.cryptoOverlay-body {padding: 10px 16px 10px;}
+
+.cryptoOverlay-footer {
+    height: 30px;
+    padding: 2px 16px;
+    background-color: #001d23;
+    color: white;
+}
+
+#buy {
+    height: 25px;
+    width: 45px;
+}
+
+#contentFeature {
+    height: 400px;
+    width: auto;
+}
+
+#overlayDetails {
+    text-align: left;
+}
+
+::-webkit-scrollbar{
+    width: 12px;
+}
+
+::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5);
+}

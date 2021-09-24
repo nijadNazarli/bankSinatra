@@ -1,10 +1,8 @@
-package miw.service.authentication;
-
-import com.miw.service.authentication.ByteArrayToHexHelper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+package com.miw.service.authentication;
 
 import java.security.SecureRandom;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 @Service
 public class SaltMaker {
@@ -29,9 +27,5 @@ public class SaltMaker {
         secureRNG.nextBytes(arr);
         String salt = ByteArrayToHexHelper.encodeHexString(arr);
         return saltLength % 2 == 0 ? salt : salt.substring(1); // als oneven is er 1 karakter teveel, haal deze weg
-    }
-
-    public void setlength(int saltLength) {
-        this.saltLength = saltLength;
     }
 }

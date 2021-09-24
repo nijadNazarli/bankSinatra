@@ -1,0 +1,103 @@
+body{
+    background-color: #012128ff;
+}
+
+.account-body{
+    margin-left: 200px;
+}
+
+.account-info{
+    padding-top: 20px;
+    margin: auto;
+    width: 300px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    text-align: center;
+    font-family: "Palatino Linotype", monospace;
+    color: #f5e8ccff;
+}
+
+.account-info h1{
+    font-size: 50px;
+}
+
+.account-info h3{
+    font-size: 20px;
+    text-align: center;
+}
+
+.splitscreen{
+    display: flex;
+    color: #012128ff;
+    font-family: "Palatino Linotype", monospace;
+    border-radius: 10px;
+}
+
+.splitscreen .left{
+    flex: 1;
+    margin: 10px;
+    background: #f5e8ccff;
+    text-align: center;
+    max-height: 50vh;
+    border-radius: 10px;
+    border-color: #181401FF;
+    border-width: 2px;
+}
+
+.splitscreen .right{
+    flex: 1;
+    margin: 10px;
+    background: #f5e8ccff;
+    text-align: center;
+    max-height: 50vh;
+    border-radius: 10px;
+    border-color: #181401FF;
+    border-width: 2px;
+}
+
+#buyerTable{
+    max-height: 80%;
+    overflow: hidden;
+    overflow-y: scroll;
+}
+
+#sellerTable{
+    max-height: 80%;
+    overflow: hidden;
+    overflow-y: scroll;
+}
+
+::-webkit-scrollbar{
+    width: 12px;
+}
+
+::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5);
+}
+
+
+#transactionTableBuyer, #transactionTableSeller{
+    border-collapse: collapse;
+    margin: auto;
+}
+
+#transactionTableBuyer th, #transactionTableSeller th{
+    padding-top: 12px;
+    padding-bottom: 12px;
+    max-height: 150px;
+    background-color: #f5e8ccff;
+    position: sticky;
+    top: 0;
+    cursor: pointer;
+}
+
+#transactionTableSeller td, #transactionTableBuyer td{
+    padding: 15px;
+    max-height: 150px;
+}

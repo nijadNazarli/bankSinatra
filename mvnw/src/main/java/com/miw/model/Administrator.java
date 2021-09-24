@@ -1,6 +1,4 @@
-package miw.model;
-
-import com.miw.model.User;
+package com.miw.model;
 
 public class Administrator extends User {
 

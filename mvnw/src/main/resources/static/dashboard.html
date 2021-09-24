@@ -4,27 +4,66 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
-    <link rel="stylesheet" href="partials/header.css">
-    <link rel="stylesheet" href="style.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="partials/validateClient.js"></script>
+    <script src="partials/sidebar.js" defer></script>
     <script src="dashboard.js" defer></script>
+    <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+    <script src="partials/portfolioStats.js" defer></script>
+    <link rel="stylesheet" href="partials/sidebar.css">
+    <link rel="stylesheet" href="dashboard.css">
     <script>
         $(function(){
-            $("#header").load("partials/header.html");
+            $("#sidebar").load("partials/sidebar.html");
         });
     </script>
 </head>
 
 <body>
-    <div id="header"></div>
-    <div class="page">
-        <label > U have a total balance of: </label>
-        <label id="balanceValue"> Get balance </label>
-        <br><br>
-        <label> Total portfolio value: </label>
-        <label id="portfolioValue"> 0.00 </label>
+    <div id="sidebar"></div>
+
+    <div class="dashboard-container">
+        <div id="FS1"> Your moneys! </div>
+        <div id="FS2"> Your amazing assets! </div>
+        <div id="FS3"> Buy Buy Buy! </div>
+    </div>
+
+    <header>
+        Welcome to Bank Sinatra!
+    </header>
+
+    <div class="dashboard-body">
+        <div class="dashboard-info">
+            <div class="left">
+                <div id="current portfolioValue"> Current portfolio value: </div>
+                <div id="current balance"> Current balance: </div>
+            </div>
+
+
+            <div class="middle">
+                <div id="portfolioValue"> no portfolio data available.</div>
+                <div id="balanceValue"> no balance available. </div>
+            </div>
+
+            <div class="right">
+                <div id="percentage"></div>
+            </div>
+
+        </div>
+
+
+        <div id="tables" class="splitscreen">
+            <div class="left">
+                <div id="chartContainer"></div>
+            </div>
+            <div class="right">
+                <div>
+                    <div id="piechartContainer" style="left: 50px; top: 50px; height: 350px; width: 450px; alignment: left"></div>
+                </div>
+            </div>
+        </div>
     </div>
 </body>
 

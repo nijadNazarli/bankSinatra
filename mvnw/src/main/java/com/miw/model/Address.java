@@ -1,4 +1,4 @@
-package miw.model;
+package com.miw.model;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
@@ -8,7 +8,7 @@ import java.util.Objects;
 public class Address {
 
     @NotEmpty
-    @Pattern(regexp="^([a-zA-Z\\u0080-\\u024F]+(?:. |-| |'))*[a-zA-Z\\u0080-\\u024F]*$",
+    @Pattern(regexp="^([a-zA-Z'\\u0080-\\u024F]+(?:. |-| |'))*[a-zA-Z'\\u0080-\\u024F]*$",
             message="Must start with a letter and can only contain letters and spaces afterwards.")
     private String city;
 
@@ -19,7 +19,7 @@ public class Address {
     private String zipCode;
 
     @NotEmpty
-    @Pattern(regexp="^([a-zA-Z\\u0080-\\u024F]+(?:. |-| |'))*[a-zA-Z0-9\\u0080-\\u024F]*$",
+    @Pattern(regexp="^([a-zA-Z.\\u0080-\\u024F]+(?:. |-| |'))*[a-zA-Z0-9.\\u0080-\\u024F]*$",
             message="Must start with a letter and can only contain letters and spaces afterwards.")
     private String street;
 
@@ -83,7 +83,7 @@ public class Address {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        com.miw.model.Address address = (com.miw.model.Address) o;
+        Address address = (Address) o;
         return houseNumber == address.houseNumber && city.equals(address.city) && zipCode.equals(address.zipCode)
                 && street.equals(address.street) && Objects.equals(houseNumberExtension, address.houseNumberExtension);
     }

@@ -4,15 +4,15 @@ window.addEventListener("DOMContentLoaded", validateClient)
 
 // specific validation of jwt and userrole
 function validateClient(){
-    fetch(`http://localhost:8080/validateClient`, {
+    fetch('/validateClient', {
         method: 'POST',
         body: `${localStorage.getItem('token')}`
     })
         .then(res => {
             if (res.status === 200) {
-                console.log("no problemo")
+                console.log("User validated.")
             } else {
-                console.log("your token is bad and you should feel bad")
+                console.log("Login validation failed, please login again.")
                 window.location.replace("/index.html");
             }
         })

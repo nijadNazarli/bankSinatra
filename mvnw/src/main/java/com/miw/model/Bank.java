@@ -1,6 +1,4 @@
-package miw.model;
-
-import com.miw.model.Account;
+package com.miw.model;
 
 public class Bank {
     private static Bank bankSinatra = null;
